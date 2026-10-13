@@ -38,7 +38,8 @@
   const base=location.href.replace(/qr\.html.*$/,"");
   const grid=document.getElementById("grid");
   stations.forEach((name,i)=>{
-    const url=base+"?s="+(i+1);
+    const slug=name.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
+    const url=base+"?s="+slug;
     const el=document.createElement("div");el.className="label";
     el.innerHTML=`<h2></h2><div class="qr"></div><p>Station funktioniert nicht?<br>Code scannen, Schritt für Schritt prüfen.</p><div class="url"></div>`;
     el.querySelector("h2").textContent=name;

@@ -8,7 +8,8 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 |---|---|
 | `index.html` | Das Tool selbst (Ablauf, Auswertung) |
 | `config.js` | **Einstellungen:** Supabase-Zugang und Stationsnamen |
-| `qr.html` | Erzeugt druckfertige QR-Codes für alle Stationen |
+| `qr.html` | Erzeugt druckfertige QR-Codes für alle Stationen (im Browser) |
+| `qr-codes/` | Fertige QR-Codes: `QR-Codes_Stationen.pdf` zum Drucken (A4, 6 pro Seite) und ein PNG pro Station |
 | `supabase.sql` | Legt die Datenbank-Tabelle an (einmalig in Supabase ausführen) |
 | `images/` | Fotos für die einzelnen Schritte (Namen siehe `images/LIESMICH.md`) |
 
@@ -21,7 +22,7 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 ## Links
 
 - Tool: `https://lernfabrikwbk.github.io/`
-- Direkt eine Station (Nummer = Position in config.js, z. B. 3 = Pressen 3): `https://lernfabrikwbk.github.io/?s=3`
+- Direkt eine Station: `https://lernfabrikwbk.github.io/?s=pressen-3` (Stationsname klein, Umlaute als ae/oe/ue, Leerzeichen als `-`)
 - Auswertung: `https://lernfabrikwbk.github.io/#auswertung`
 - QR-Codes drucken: `https://lernfabrikwbk.github.io/qr.html`
 
@@ -34,3 +35,9 @@ Gezählt wird nur, was sicher ist:
 - **Ungelöst:** Endet die Prüfung beim Techniker oder bei Dorian, wird der Grund separat gezählt.
 
 Den Ablauf selbst ändert man in `index.html` im Block `const FLOW={ ... }`.
+
+## QR-Codes
+
+Die QR-Codes enthalten den **Stationsnamen**, nicht die Position in der Liste, z. B. `?s=fuegen-1`.
+Sie bleiben gültig, solange sich die Adresse `lernfabrikwbk.github.io` und der Name der Station in `config.js` nicht ändern.
+Neue Stationen können jederzeit ergänzt werden, die gedruckten Codes funktionieren weiter.
