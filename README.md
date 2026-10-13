@@ -12,12 +12,18 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 | `supabase.sql` | Legt die Datenbank-Tabelle an (einmalig in Supabase ausführen) |
 | `images/` | Fotos für die einzelnen Schritte (Namen siehe `images/LIESMICH.md`) |
 
-## Links (nach dem Einrichten)
+## Aufbau: Werkstatt und Live-Seite
 
-- Tool: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/`
-- Direkt eine Station (Nummer = Position in config.js, z. B. 3 = Pressen 3): `https://sazexlucifer1.github.io/KIT_LF_Anleitung/?s=3`
-- Auswertung: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/#auswertung`
-- QR-Codes drucken: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/qr.html`
+- **Werkstatt:** `SazexLucifer1/KIT_LF_Anleitung`. Hier werden Änderungen gemacht.
+- **Live-Seite:** `LernfabrikWBK/lernfabrikwbk.github.io` (Fork). GitHub Pages läuft hier.
+- Änderungen übernehmen: im Live-Repo **Sync fork → Update branch** klicken.
+
+## Links
+
+- Tool: `https://lernfabrikwbk.github.io/`
+- Direkt eine Station (Nummer = Position in config.js, z. B. 3 = Pressen 3): `https://lernfabrikwbk.github.io/?s=3`
+- Auswertung: `https://lernfabrikwbk.github.io/#auswertung`
+- QR-Codes drucken: `https://lernfabrikwbk.github.io/qr.html`
 
 ## Wie die Auswertung zählt
 
