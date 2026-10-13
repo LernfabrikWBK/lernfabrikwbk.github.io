@@ -17,6 +17,10 @@ create table if not exists public.runs (
   duration_sec  integer
 );
 
+-- Zugriff für die Webseite erlauben (nötig, falls neue Tabellen nicht automatisch freigegeben werden)
+grant usage on schema public to anon, authenticated;
+grant select, insert on public.runs to anon, authenticated;
+
 -- Zugriffsschutz einschalten
 alter table public.runs enable row level security;
 
