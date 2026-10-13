@@ -158,7 +158,9 @@ td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13p
    obsYes/obsNo/o.obs = Befund, den die Person direkt gesehen hat (z. B. "NUC-PC war aus")
    fix     = Handlung, die nur zählt, wenn die nächste Kontrollfrage danach positiv ausfällt
    confirm = Kontrollfrage: "Ja" bestätigt die offenen fix-Handlungen, "Nein" verwirft sie
-   reason  = bei Eskalation: was ungelöst blieb */
+   clearOnNo = Zwischenkontrolle: "Nein" verwirft die offenen fix-Handlungen, "Ja" bestätigt noch nichts
+   reason  = bei Eskalation: was ungelöst blieb
+   noAgain = wird die Frage im selben Durchlauf ein ZWEITES Mal mit "Nein" beantwortet, geht es hierhin (verhindert Endlosschleifen) */
 const SECTIONS=["Beleuchtung","Stromversorgung","Monitor & PC","Docker & MES"];
 const FLOW={
  LP:{imgs:[{f: "led-panel-vorne-an", c: "Vorderes Panel an"}, {f: "led-panel-oben-an", c: "Oberes Panel an"}, {f: "station-aus", c: "Beide Panels aus"}],s:0,type:"q",text:"Welche LED-Panels leuchten?",hint:"Schau auf das vordere und das obere Panel der Station.",opts:[
@@ -179,7 +181,7 @@ const FLOW={
  F1:{imgs:[{f: "hauptschalter-an", c: "So soll er danach stehen"}],s:1,type:"a",text:"Hauptschalter einschalten.",to:"G"},
  G:{imgs:[{f: "station-eingeschaltet", c: "Grüner Knopf und Kontroll-LED"}],s:1,type:"a",text:"Grünen Knopf oben rechts an der Arbeitsstation drücken.",to:"H"},
  H:{imgs:[{f: "station-eingeschaltet", c: "Kontroll-LED leuchtet grün"}],s:1,type:"q",text:"Leuchtet die Kontroll-LED?",yes:"M",no:"I",confirm:true,fallback:"Station war nur ausgeschaltet (grüner Knopf)",fallbackUnless:["Notaus war gedrückt","Hauptschalter war aus"]},
- M:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:1,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"I"},
+ M:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:1,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"B"},
  I:{imgs:[{f: "station-laedt", c: "Smiley, 2 Pfeile: lädt am Netz"}, {f: "batterie-modus", c: "Nur 1 Pfeil: Batteriebetrieb"}],s:1,type:"q",text:"Was zeigt die Batterieanzeige hinter der vorderen Tür?",opts:[
    {l:"Smiley, 2 Pfeile bewegen sich",to:"TM3"},
    {l:"Nur 1 Pfeil (Mitte → rechts)",to:"K"},
@@ -191,27 +193,27 @@ const FLOW={
  B:{imgs:[{f: "monitor-aus", c: "Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Power-Schalter am Monitor einmal drücken.",to:"C2",fix:"Monitor war ausgeschaltet"},
  C2:{imgs:[{f: "monitor-an", c: "LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",yes:"P",no:"TM5",confirm:true},
  P:{imgs:[{f: "anmelden-kennwort", c: "Normal: z. B. der Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"LOG",no:"N"},
- N:{imgs:[{f: "nuc-aus", c: "NUC aus: Knopf dunkel"}, {f: "nuc-an", c: "NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",obsNo:"NUC-PC war aus"},
+ N:{imgs:[{f: "nuc-aus", c: "NUC aus: Knopf dunkel"}, {f: "nuc-an", c: "NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"TM8",obsNo:"NUC-PC war aus"},
  N1:{imgs:[{f: "nuc-an", c: "Power-Knopf drücken, bis er blau leuchtet"}],s:2,type:"a",text:"NUC-PC einschalten.",to:"P"},
  HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",to:"HB",fix:"HDMI-Kabel war lose"},
  HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"LOG",no:"TM6",confirm:true},
- LOG:{imgs:[{f: "anmelden-kennwort", c: "Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Monitor per Touch bedienen und mit dem Lernfabrik-Passwort anmelden.",to:"R1"},
+ LOG:{imgs:[{f: "anmelden-kennwort", c: "Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Falls nötig: per Touch mit dem Benutzer Lernfabrik und dem Lernfabrik-Passwort anmelden.",to:"R1"},
 
  R1:{imgs:[{f: "rfid-erkennt-poltopf", c: "Pol-Topf direkt neben den Reader halten"}],s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",to:"R2"},
  R2:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange: Pol-Topf erkannt"}, {f: "rfid-nur-gruen", c: "Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
    {l:"Grün und Orange",to:"SL",k:"yes"},
    {l:"Nur Grün",to:"DK1"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
- SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MES",no:"DK1"},
+ SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MES",no:"DK1",noAgain:"DOR3",confirm:true},
  DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
  DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
- TA:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",confirm:true},
+ TA:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
  DK3:{imgs:[{f: "docker-angehalten-start", c: "Dunkelblauer Start-Pfeil oben rechts"}],s:3,type:"a",text:"In Docker auf den dunkelblauen Start-Pfeil drücken und warten.",to:"TB",fix:"Docker-Container war gestoppt"},
- TB:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",confirm:true},
+ TB:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",clearOnNo:true},
  RS:{imgs:[{f: "pc-neustart-windows", c: "Start, Ein/Aus, Neu starten", os: "windows"}, {f: "linux-power", c: "Menü oben rechts am Bildschirm öffnen", os: "linux"}, {f: "linux-neustart", c: "Ausschalten, dann Neustart wählen", os: "linux"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
- TC:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",confirm:true},
+ TC:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",clearOnNo:true},
  IO:{imgs:[{f: "io-link-master-strom", c: "IO-Link-Master mit Strom: LEDs leuchten"}],s:3,type:"q",text:"Leuchtet der IO-Link-Master?",yes:"KA",no:"TM7"},
- KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",obsNo:"IO-Link-Kabel nicht gesteckt"},
+ KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",noAgain:"DOR4",obsNo:"IO-Link-Kabel nicht gesteckt"},
  KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
  MES:{imgs:[{f: "browser-verknuepfung", c: "Firefox in der Taskleiste öffnen"}, {f: "adresse-mes", c: "MES-Adresse auswählen"}, {f: "arbeitsstation-zuordnen", c: "Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
@@ -220,6 +222,9 @@ const FLOW={
  TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM6:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Kein Bild trotz PC und HDMI",text:"Kein Bild, obwohl PC an und HDMI gesteckt. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM7:{type:"end",kind:"tech",title:"Techniker rufen",reason:"IO-Link-Master ohne Strom",text:"Der IO-Link-Master hat keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
+ TM8:{type:"end",kind:"tech",title:"Techniker rufen",reason:"NUC-PC lässt sich nicht einschalten",text:"Der NUC-PC geht nicht an. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
+ DOR3:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Smart-Light wird trotz laufendem Docker nicht grün",text:"Der RFID-Reader erkennt den Pol-Topf, aber das Smart-Light wird auch nach dem Docker-Neustart nicht grün."},
+ DOR4:{type:"end",kind:"dorian",title:"Dorian melden",reason:"IO-Link-Kabel: richtige Position unklar",text:"Die Kabel am IO-Link-Master stecken auch nach dem Einstecken nicht richtig oder die Position ist unklar."},
  DOR1:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Docker läuft auch nach PC-Neustart nicht",text:"Docker startet auch nach einem PC-Neustart nicht richtig."},
  DOR2:{type:"end",kind:"dorian",title:"Dorian melden",reason:"RFID reagiert trotz gesteckter Kabel nicht",text:"RFID-Reader reagiert nicht, obwohl alle Kabel am IO-Link-Master stecken."}
 };
@@ -234,7 +239,7 @@ function computeFindings(hist){
       if(pending.length) found.push(...pending);
       else if(n.fallback&&!(n.fallbackUnless||[]).some(x=>found.includes(x))) found.push(n.fallback);
       pending=[];
-    } else if(n.confirm&&h.pos===false){pending=[];}
+    } else if((n.confirm||n.clearOnNo)&&h.pos===false){pending=[];}
   }
   return [...new Set(found)];
 }
@@ -322,7 +327,7 @@ function render(){
     <div class="row"><button class="link" id="back">${state.history.length?"Zurück":"Abbrechen"}</button><span class="save">Schritt ${state.history.length+1}</span></div>
   </section>`;
   $view.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{const o=n.opts[+b.dataset.opt];go(o.to,o.l,{obs:o.obs})});
-  $view.querySelectorAll("[data-yn]").forEach(b=>b.onclick=()=>{const y=b.dataset.yn==="yes";go(y?n.yes:n.no,y?"Ja":"Nein",{obs:y?n.obsYes:n.obsNo,pos:y})});
+  $view.querySelectorAll("[data-yn]").forEach(b=>b.onclick=()=>{const y=b.dataset.yn==="yes";const again=state.history.some(h=>h.id===state.node);go(y?n.yes:(n.noAgain&&again?n.noAgain:n.no),y?"Ja":"Nein",{obs:y?n.obsYes:n.obsNo,pos:y})});
   $view.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>go(n.to,n.type==="a"?"Erledigt":"Weiter",{tech:n.tech}));
   document.getElementById("back").onclick=back;
 }
