@@ -65,9 +65,19 @@ select{font:500 18px var(--f-body);padding:12px;border-radius:10px;border:1px so
 .sections span{height:6px;border-radius:3px;background:var(--line)}
 .sections span.on{background:var(--accent)}
 .sections span.done{background:var(--accent);opacity:.45}
-.photo{aspect-ratio:4/3;max-width:100%;border-radius:10px;background:var(--ph);border:1px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;color:var(--muted);text-align:center;padding:12px;overflow:hidden}
-.photo img{width:100%;height:100%;object-fit:cover;border-radius:8px}
-.photo .tag{font-family:var(--f-mono);font-size:13px;background:var(--panel);border:1px solid var(--line);padding:3px 8px;border-radius:6px;color:var(--ink)}
+.photos{display:grid;gap:10px;grid-template-columns:1fr}
+.photos.n2{grid-template-columns:1fr 1fr}
+.photos.n3{grid-template-columns:1fr 1fr}
+.photos.n3 .ph:first-child{grid-column:1/-1}
+.ph{margin:0;display:flex;flex-direction:column;gap:5px;min-width:0}
+.ph .zoom{padding:0;border:0;background:var(--ph);border-radius:10px;overflow:hidden;cursor:zoom-in;display:block;width:100%;aspect-ratio:4/3}
+.ph img{width:100%;height:100%;object-fit:cover;display:block}
+.ph figcaption{font-size:13px;line-height:1.3;color:var(--muted)}
+.photos.n1 .ph figcaption{font-size:14px}
+#lb{position:fixed;inset:0;z-index:50;background:rgba(10,14,12,.92);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:calc(16px + env(safe-area-inset-top,0px)) 16px calc(16px + env(safe-area-inset-bottom,0px));cursor:zoom-out}
+#lb img{max-width:100%;max-height:80vh;object-fit:contain;border-radius:8px}
+#lb p{color:#eef1ee;margin:0;text-align:center;font-size:16px}
+#lb span{color:#9aa89e;font-size:13px}
 .q{font-size:22px;font-weight:600;line-height:1.3;margin:0;text-wrap:balance}
 .hint{color:var(--muted);margin:0;font-size:16px}
 .kind{font-family:var(--f-mono);font-size:12px;letter-spacing:.06em;text-transform:uppercase;padding:3px 8px;border-radius:6px;align-self:flex-start}
@@ -132,6 +142,7 @@ td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13p
     </nav>
   </header>
   <main id="view"></main>
+  <div id="lb" hidden role="dialog" aria-label="Foto"><img alt=""><p></p><span>Tippen zum Schließen</span></div>
 </div>
 
 <script src="config.js"></script>
@@ -147,60 +158,60 @@ td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13p
    reason  = bei Eskalation: was ungelöst blieb */
 const SECTIONS=["Beleuchtung","Stromversorgung","Monitor & PC","Docker & MES"];
 const FLOW={
- LP:{s:0,type:"q",text:"Welche LED-Panels leuchten?",hint:"Schau auf das vordere und das obere Panel der Station.",img:"Bild 8, 9",opts:[
+ LP:{imgs:[{f: "led-panel-vorne-an", c: "Vorderes Panel an"}, {f: "led-panel-oben-an", c: "Oberes Panel an"}, {f: "station-aus", c: "Beide Panels aus"}],s:0,type:"q",text:"Welche LED-Panels leuchten?",hint:"Schau auf das vordere und das obere Panel der Station.",opts:[
    {l:"Beide",to:"FC",k:"yes"},
    {l:"Nur vorne, oben aus",to:"TM1",obs:"Oberes LED-Panel aus"},
    {l:"Nur oben, vorne aus",to:"FB"},
    {l:"Keins",to:"E",k:"no"}]},
- FC:{s:0,type:"q",text:"Leuchtet das vordere Panel in WBK-Grün?",img:"Bild WBK-Grün",yes:"C",no:"FC1",obsNo:"Panel-Farbe falsch eingestellt"},
- FC1:{s:0,type:"a",text:"Farbe mit der Fernbedienung auf WBK-Grün einstellen.",hint:"Die Fernbedienung liegt im Büro von Fabian Hofsäß.",img:"Bild Fernbedienung",to:"C"},
+ FC:{imgs:[{f: "led-panel-vorne-an", c: "So soll es aussehen: WBK-Grün"}],s:0,type:"q",text:"Leuchtet das vordere Panel in WBK-Grün?",yes:"C",no:"FC1",obsNo:"Panel-Farbe falsch eingestellt"},
+ FC1:{s:0,type:"a",text:"Farbe mit der Fernbedienung auf WBK-Grün einstellen.",hint:"Die Fernbedienung liegt im Büro von Fabian Hofsäß.",to:"C"},
  TM1:{s:0,type:"n",text:"Bitte einen Techniker informieren.",hint:"Das obere Panel ist aus. Die Station funktioniert trotzdem, nur ohne Beleuchtung. Du kannst weiter prüfen.",to:"C",tech:true},
- FB:{s:0,type:"a",text:"Fernbedienung aus dem Büro von Fabian Hofsäß holen und die LED-Panels 1–8 einschalten.",img:"Bild Fernbedienung",to:"FB2",fix:"Vorderes Panel war ausgeschaltet"},
+ FB:{s:0,type:"a",text:"Fernbedienung aus dem Büro von Fabian Hofsäß holen und die LED-Panels 1–8 einschalten.",to:"FB2",fix:"Vorderes Panel war ausgeschaltet"},
  FB2:{s:0,type:"q",text:"Leuchtet das vordere Panel jetzt?",yes:"FC",no:"TM2",confirm:true,obsNo:"Vorderes Panel lässt sich nicht einschalten"},
  TM2:{s:0,type:"n",text:"Bitte einen Techniker informieren.",hint:"Die Station ist eventuell trotzdem nutzbar, wenn Monitor und PC angehen. Prüf weiter.",to:"C",tech:true},
 
- E:{s:1,type:"q",text:"Ist der Notaus gedrückt?",img:"Bild 10",yes:"E1",no:"F",obsYes:"Notaus war gedrückt"},
- E1:{s:1,type:"a",text:"Notaus durch Ziehen nach oben lösen.",img:"Bild 10",to:"F"},
- F:{s:1,type:"q",text:"Vordere Tür durch Ziehen öffnen. Ist der Hauptschalter aus?",img:"Bild 11, 12",yes:"F1",no:"G",obsYes:"Hauptschalter war aus"},
- F1:{s:1,type:"a",text:"Hauptschalter einschalten.",img:"Bild 12",to:"G"},
- G:{s:1,type:"a",text:"Grünen Knopf oben rechts an der Arbeitsstation drücken.",img:"Bild grüner Knopf",to:"H"},
- H:{s:1,type:"q",text:"Leuchtet die Kontroll-LED?",img:"Bild Kontroll-LED",yes:"M",no:"I",confirm:true,fallback:"Station war nur ausgeschaltet (grüner Knopf)",fallbackUnless:["Notaus war gedrückt","Hauptschalter war aus"]},
- M:{s:1,type:"q",text:"Leuchtet die LED am Monitor?",img:"Bild 7",yes:"P",no:"I"},
- I:{s:1,type:"q",text:"Was zeigt die Batterieanzeige hinter der vorderen Tür?",img:"Bild Batterieanzeige",opts:[
+ E:{imgs:[{f: "notaus-gedrueckt", c: "Gedrückt: Station gesperrt"}, {f: "notaus-geloest", c: "Gelöst: alles in Ordnung"}],s:1,type:"q",text:"Ist der Notaus gedrückt?",yes:"E1",no:"F",obsYes:"Notaus war gedrückt"},
+ E1:{imgs:[{f: "notaus-geloest", c: "So soll er danach aussehen"}],s:1,type:"a",text:"Notaus durch Ziehen nach oben lösen.",to:"F"},
+ F:{imgs:[{f: "hauptschalter-aus", c: "Hauptschalter aus"}, {f: "hauptschalter-an", c: "Hauptschalter an"}],s:1,type:"q",text:"Vordere Tür durch Ziehen öffnen. Ist der Hauptschalter aus?",yes:"F1",no:"G",obsYes:"Hauptschalter war aus"},
+ F1:{imgs:[{f: "hauptschalter-an", c: "So soll er danach stehen"}],s:1,type:"a",text:"Hauptschalter einschalten.",to:"G"},
+ G:{imgs:[{f: "station-eingeschaltet", c: "Grüner Knopf und Kontroll-LED"}],s:1,type:"a",text:"Grünen Knopf oben rechts an der Arbeitsstation drücken.",to:"H"},
+ H:{imgs:[{f: "station-eingeschaltet", c: "Kontroll-LED leuchtet grün"}],s:1,type:"q",text:"Leuchtet die Kontroll-LED?",yes:"M",no:"I",confirm:true,fallback:"Station war nur ausgeschaltet (grüner Knopf)",fallbackUnless:["Notaus war gedrückt","Hauptschalter war aus"]},
+ M:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:1,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"I"},
+ I:{imgs:[{f: "station-laedt", c: "Smiley, 2 Pfeile: lädt am Netz"}, {f: "batterie-modus", c: "Nur 1 Pfeil: Batteriebetrieb"}],s:1,type:"q",text:"Was zeigt die Batterieanzeige hinter der vorderen Tür?",opts:[
    {l:"Smiley, 2 Pfeile bewegen sich",to:"TM3"},
    {l:"Nur 1 Pfeil (Mitte → rechts)",to:"K"},
    {l:"Anzeige aus oder etwas anderes",to:"TM3"}]},
- K:{s:1,type:"a",text:"Die Station läuft im Batteriebetrieb. Netzkabel hinten an eine Steckdose anschließen.",img:"Bild Netzkabel",to:"L",fix:"Batteriebetrieb, Netzkabel fehlte"},
- L:{s:1,type:"q",text:"Bewegt sich jetzt auch der 2. Pfeil (links → Mitte)?",img:"Bild Batterieanzeige",yes:"C",no:"TM4",confirm:true},
+ K:{imgs:[{f: "kein-stecker-station", c: "Hier fehlt das Netzkabel"}, {f: "stecker-station", c: "Kabel hinten in der Station"}, {f: "stecker-steckdose", c: "Anderes Ende in die Steckdose"}],s:1,type:"a",text:"Die Station läuft im Batteriebetrieb. Netzkabel hinten an eine Steckdose anschließen.",to:"L",fix:"Batteriebetrieb, Netzkabel fehlte"},
+ L:{imgs:[{f: "station-laedt", c: "So soll es aussehen: 2 Pfeile"}],s:1,type:"q",text:"Bewegt sich jetzt auch der 2. Pfeil (links → Mitte)?",yes:"C",no:"TM4",confirm:true},
 
- C:{s:2,type:"q",text:"Leuchtet die LED am Monitor?",img:"Bild 7",yes:"P",no:"B"},
- B:{s:2,type:"a",text:"Power-Schalter am Monitor einmal drücken.",img:"Bild 7",to:"C2",fix:"Monitor war ausgeschaltet"},
- C2:{s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",img:"Bild 7",yes:"P",no:"TM5",confirm:true},
- P:{s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",img:"Bild 6",yes:"LOG",no:"N"},
- N:{s:2,type:"q",text:"Ist der NUC-PC an?",img:"Bild NUC-PC",yes:"HD",no:"N1",obsNo:"NUC-PC war aus"},
- N1:{s:2,type:"a",text:"NUC-PC einschalten.",img:"Bild NUC-PC",to:"P"},
- HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",img:"Bild HDMI",to:"HB",fix:"HDMI-Kabel war lose"},
+ C:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:2,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"B"},
+ B:{imgs:[{f: "monitor-aus", c: "Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Power-Schalter am Monitor einmal drücken.",to:"C2",fix:"Monitor war ausgeschaltet"},
+ C2:{imgs:[{f: "monitor-an", c: "LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",yes:"P",no:"TM5",confirm:true},
+ P:{imgs:[{f: "anmelden-kennwort", c: "Normal: z. B. der Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"LOG",no:"N"},
+ N:{imgs:[{f: "nuc-aus", c: "NUC aus: Knopf dunkel"}, {f: "nuc-an", c: "NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",obsNo:"NUC-PC war aus"},
+ N1:{imgs:[{f: "nuc-an", c: "Power-Knopf drücken, bis er blau leuchtet"}],s:2,type:"a",text:"NUC-PC einschalten.",to:"P"},
+ HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",to:"HB",fix:"HDMI-Kabel war lose"},
  HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"LOG",no:"TM6",confirm:true},
- LOG:{s:2,type:"a",text:"Monitor per Touch bedienen und mit dem Lernfabrik-Passwort anmelden.",img:"Bild Anmeldung",to:"R1"},
+ LOG:{imgs:[{f: "anmelden-kennwort", c: "Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Monitor per Touch bedienen und mit dem Lernfabrik-Passwort anmelden.",to:"R1"},
 
- R1:{s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",img:"Bild RFID-Reader",to:"R2"},
- R2:{s:3,type:"q",text:"Was leuchtet am RFID-Reader?",img:"Bild RFID-Reader",opts:[
+ R1:{imgs:[{f: "rfid-erkennt-poltopf", c: "Pol-Topf direkt neben den Reader halten"}],s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",to:"R2"},
+ R2:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange: Pol-Topf erkannt"}, {f: "rfid-nur-gruen", c: "Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
    {l:"Grün und Orange",to:"SL",k:"yes"},
    {l:"Nur Grün",to:"DK1"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
- SL:{s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",img:"Bild Smart-Light",yes:"MES",no:"DK1"},
- DK1:{s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",img:"Bild Docker",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
- DK2:{s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",img:"Bild Docker Admin",to:"TA"},
- TA:{s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",img:"Bild RFID-Reader",yes:"SL",no:"DK3",confirm:true},
- DK3:{s:3,type:"a",text:"In Docker auf den dunkelblauen Start-Pfeil drücken und warten.",img:"Bild Docker Start",to:"TB",fix:"Docker-Container war gestoppt"},
- TB:{s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",img:"Bild RFID-Reader",yes:"SL",no:"RS",confirm:true},
- RS:{s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
- TC:{s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",img:"Bild RFID-Reader",yes:"SL",no:"DOR1",confirm:true},
- IO:{s:3,type:"q",text:"Leuchtet der IO-Link-Master?",img:"Bild IO-Link-Master",yes:"KA",no:"TM7"},
- KA:{s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",img:"Bild IO-Link-Master",yes:"DOR2",no:"KA1",obsNo:"IO-Link-Kabel nicht gesteckt"},
- KA1:{s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",img:"Bild IO-Link-Kabel",to:"R1"},
+ SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MES",no:"DK1"},
+ DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
+ DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
+ TA:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",confirm:true},
+ DK3:{imgs:[{f: "docker-angehalten-start", c: "Dunkelblauer Start-Pfeil oben rechts"}],s:3,type:"a",text:"In Docker auf den dunkelblauen Start-Pfeil drücken und warten.",to:"TB",fix:"Docker-Container war gestoppt"},
+ TB:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",confirm:true},
+ RS:{imgs:[{f: "pc-neustart-windows", c: "Windows: Start, Ein/Aus, Neu starten"}, {f: "linux-power", c: "Station 1 (Linux): Menü oben rechts"}, {f: "linux-neustart", c: "Station 1 (Linux): Neustart"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
+ TC:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",confirm:true},
+ IO:{imgs:[{f: "io-link-master-strom", c: "IO-Link-Master mit Strom: LEDs leuchten"}],s:3,type:"q",text:"Leuchtet der IO-Link-Master?",yes:"KA",no:"TM7"},
+ KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",obsNo:"IO-Link-Kabel nicht gesteckt"},
+ KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
- MES:{type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Browser öffnen und die MES-IP eingeben, dann ist das MES vollständig nutzbar."},
+ MES:{imgs:[{f: "browser-verknuepfung", c: "Firefox in der Taskleiste öffnen"}, {f: "adresse-mes", c: "MES-Adresse auswählen"}, {f: "arbeitsstation-zuordnen", c: "Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
  TM3:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station bekommt keinen Strom",text:"Die Station bekommt keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM4:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station lädt nicht am Netz",text:"Die Station lädt nicht am Netz. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
@@ -229,7 +240,7 @@ const CFG=window.CONFIG||{};
 const STATIONS=(CFG.STATIONS&&CFG.STATIONS.length)?CFG.STATIONS:["Station 1"];
 /* Fotos: Datei in den Ordner images/ legen, Name = Platzhalter-Text klein, ohne Umlaute.
    "Bild 7" -> images/bild-7.jpg  ·  "Bild WBK-Grün" -> images/bild-wbk-gruen.jpg */
-function imgFile(label){return "images/"+label.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")+".jpg"}
+function imgFile(f){return "images/"+f+".jpg"}
 const KIND_LABEL={ok:"Einsatzbereit",tech:"Techniker",dorian:"Dorian"};
 
 /* ---------- Speicher: geteilte Datenbank, sonst nur dieses Gerät ---------- */
@@ -274,8 +285,13 @@ function setTab(v){state.view=v;
 document.getElementById("tab-check").onclick=()=>setTab("check");
 document.getElementById("tab-stats").onclick=()=>setTab("stats");
 
-function photo(n){ if(!n.img) return "";
-  return `<div class="photo"><img src="${esc(imgFile(n.img))}" alt="${esc(n.img)}" onerror="this.parentNode.innerHTML='<span class=&quot;tag&quot;>${esc(n.img)}</span><span>Foto folgt</span>'"></div>`;}
+function photo(n){ const L=n.imgs||[]; if(!L.length) return "";
+  return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" loading="lazy"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
+/* Foto antippen = groß anzeigen */
+document.addEventListener("click",e=>{const z=e.target.closest(".zoom");
+  if(z){const lb=document.getElementById("lb");lb.querySelector("img").src=z.dataset.src;lb.querySelector("p").textContent=z.dataset.cap;lb.hidden=false;return}
+  if(e.target.closest("#lb")) document.getElementById("lb").hidden=true;});
+document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("lb").hidden=true});
 
 function sectionBar(s){return `<div class="sections" aria-label="Abschnitt ${s+1} von 4">${SECTIONS.map((_,i)=>`<span class="${i<s?"done":i===s?"on":""}"></span>`).join("")}</div>`}
 
@@ -364,6 +380,7 @@ function renderStart(){
     <span class="eyebrow">Lernfabrik · Funktionsprüfung</span>
     <h1>Läuft die Station?</h1>
     <p class="hint">Du wirst Schritt für Schritt durch die Prüfung geführt: Beleuchtung, Strom, Monitor und PC, Docker und MES. Antworte einfach mit den Buttons.</p>
+    ${photo({imgs:[{f:"stationsname",c:"Der Name steht auf dem Schild über der Station"}]})}
     <label class="f" for="st">${urlStation?"Station aus dem QR-Code":"Welche Station prüfst du?"}
       <select id="st">${STATIONS.map(s=>`<option ${s===state.station?"selected":""}>${s}</option>`).join("")}</select></label>
     <button class="btn primary" id="go">Prüfung starten</button>
@@ -384,6 +401,7 @@ function renderEnd(n){
     <span class="eyebrow">${esc(state.station)} · Ergebnis</span>
     <h1>${esc(n.title)}</h1>
     <p class="hint" style="color:var(--ink)">${esc(n.text)}</p>
+    ${photo(n)}
     ${help?`<p class="hint" style="color:var(--ink)">Zeig ${n.kind==="dorian"?"Dorian":"dem Techniker"} das Prüfprotokoll unten oder schick es ihm. Dann muss niemand die Schritte wiederholen.</p>`:""}
     ${tech&&n.kind==="ok"?`<p class="hint" style="color:var(--ink)"><b>Offen:</b> Bitte trotzdem einen Techniker wegen der Beleuchtung informieren.</p>`:""}
     ${findings.length?`<div><span class="eyebrow">Gefundene Ursachen</span><div class="chips" style="margin-top:6px">${findings.map(f=>`<span class="chip">${esc(f)}</span>`).join("")}</div></div>`:""}

@@ -1,30 +1,39 @@
 # Fotos für den Stations-Check
 
-Fotos als **.jpg** genau mit diesen Namen hier in den Ordner legen. Fehlt ein Foto, zeigt das Tool automatisch einen Platzhalter.
+- `images/*.jpg` sind die Fotos, die das Tool anzeigt: verkleinert (max. 1400 px), richtig gedreht, mit einfachen Dateinamen ohne Leerzeichen und Umlaute.
+- `images/original/` enthält deine Original-Fotos unverändert.
 
-Tipp: Fotos im Querformat (4:3) machen und vorher auf ca. 1200 px Breite verkleinern, dann lädt es am Handy schnell.
+## Neues Foto hinzufügen oder austauschen
 
-| Platzhalter im Tool | Dateiname |
+1. Foto in `images/original/` hochladen (Name egal).
+2. Claude Bescheid geben. Das Foto wird dann verkleinert, umbenannt und im passenden Schritt eingetragen.
+
+Austauschen geht auch selbst: eine Datei in `images/` mit **genau gleichem Namen** überschreiben.
+
+## Welches Foto in welchem Schritt
+
+| Schritt | Fotos |
 |---|---|
-| Bild 6 | `bild-6.jpg` |
-| Bild 7 | `bild-7.jpg` |
-| Bild 8, 9 | `bild-8-9.jpg` |
-| Bild 10 | `bild-10.jpg` |
-| Bild 11, 12 | `bild-11-12.jpg` |
-| Bild 12 | `bild-12.jpg` |
-| Bild WBK-Grün | `bild-wbk-gruen.jpg` |
-| Bild Fernbedienung | `bild-fernbedienung.jpg` |
-| Bild grüner Knopf | `bild-gruener-knopf.jpg` |
-| Bild Kontroll-LED | `bild-kontroll-led.jpg` |
-| Bild Batterieanzeige | `bild-batterieanzeige.jpg` |
-| Bild Netzkabel | `bild-netzkabel.jpg` |
-| Bild NUC-PC | `bild-nuc-pc.jpg` |
-| Bild HDMI | `bild-hdmi.jpg` |
-| Bild Anmeldung | `bild-anmeldung.jpg` |
-| Bild RFID-Reader | `bild-rfid-reader.jpg` |
-| Bild Smart-Light | `bild-smart-light.jpg` |
-| Bild Docker | `bild-docker.jpg` |
-| Bild Docker Admin | `bild-docker-admin.jpg` |
-| Bild Docker Start | `bild-docker-start.jpg` |
-| Bild IO-Link-Master | `bild-io-link-master.jpg` |
-| Bild IO-Link-Kabel | `bild-io-link-kabel.jpg` |
+| Start | `stationsname` |
+| Welche LED-Panels leuchten? | `led-panel-vorne-an`, `led-panel-oben-an`, `station-aus` |
+| Vorderes Panel in WBK-Grün? | `led-panel-vorne-an` |
+| Notaus gedrückt? / lösen | `notaus-gedrueckt`, `notaus-geloest` |
+| Hauptschalter aus? / einschalten | `hauptschalter-aus`, `hauptschalter-an` |
+| Grüner Knopf / Kontroll-LED | `station-eingeschaltet` |
+| Monitor-LED | `monitor-aus`, `monitor-an` |
+| Batterieanzeige | `station-laedt`, `batterie-modus` |
+| Netzkabel anschließen | `kein-stecker-station`, `stecker-station`, `stecker-steckdose` |
+| Normales Bild / Anmelden | `anmelden-kennwort` |
+| NUC-PC an? / einschalten | `nuc-aus`, `nuc-an` |
+| RFID-Reader | `rfid-erkennt-poltopf`, `rfid-nur-gruen` |
+| Smart-Light | `smartlight-gruen`, `smartlight-aus` |
+| Docker gestartet? | `docker-taskleiste`, `docker-laeuft` |
+| Docker als Administrator | `docker-admin-ausfuehren`, `docker-bestaetigen` |
+| Docker Start-Pfeil | `docker-angehalten-start` |
+| PC neu starten | `pc-neustart-windows`, `linux-power`, `linux-neustart` |
+| IO-Link-Master | `io-link-master-strom` |
+| Ergebnis „einsatzbereit" (MES öffnen) | `browser-verknuepfung`, `adresse-mes`, `arbeitsstation-zuordnen` |
+
+Noch nicht verwendet: `docker-laeuft-2`, `nur-eine-smart-led`, `switch-strom`.
+
+Noch ohne Foto: Fernbedienung für die LED-Panels, HDMI-Kabel am NUC-PC.
