@@ -9,7 +9,7 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 | `index.html` | Das Tool selbst (Ablauf, Auswertung) |
 | `config.js` | **Einstellungen:** Supabase-Zugang und Stationsnamen |
 | `qr.html` | Erzeugt druckfertige QR-Codes für alle Stationen (im Browser) |
-| `qr-codes/` | Fertige QR-Codes: `QR-Codes_Stationen.pdf` zum Drucken (A4, 6 pro Seite) und ein PNG pro Station |
+| `qr-codes/` | Fertige QR-Codes: `QR-Codes_Stationen.pdf` zum Drucken (A4, 6 pro Seite), ein PNG pro Station und `erzeugen.py` zum Neu-Erstellen |
 | `supabase.sql` | Legt die Datenbank-Tabelle an (einmalig in Supabase ausführen) |
 | `images/` | Fotos für die einzelnen Schritte (Namen siehe `images/LIESMICH.md`) |
 
