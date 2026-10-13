@@ -92,6 +92,9 @@ select{font:500 18px var(--f-body);padding:12px;border-radius:10px;border:1px so
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:14px;padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
 .save{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.picked{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent)}
+.picked b{font-family:var(--f-display);font-size:30px;line-height:1.1}
+.picked .link{padding-top:4px}
 .log{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;counter-reset:st}
 .log li{display:grid;grid-template-columns:2em 1fr auto;gap:4px 10px;align-items:baseline;padding:9px 0;border-bottom:1px solid var(--line);counter-increment:st;font-size:15px}
 .log li::before{content:counter(st);font-family:var(--f-mono);font-size:12px;color:var(--muted)}
@@ -380,18 +383,24 @@ async function finish(){
 }
 
 function renderStart(){
+  const fromQR=!!urlStation&&!state.pickStation;
   $view.innerHTML=`<section class="card">
     <span class="eyebrow">Lernfabrik · Funktionsprüfung</span>
     <h1>Läuft die Station?</h1>
     <p class="hint">Du wirst Schritt für Schritt durch die Prüfung geführt: Beleuchtung, Strom, Monitor und PC, Docker und MES. Antworte einfach mit den Buttons.</p>
-    ${photo({imgs:[{f:"stationsname",c:"Der Name steht auf dem Schild über der Station"}]})}
-    <label class="f" for="st">${urlStation?"Station aus dem QR-Code":"Welche Station prüfst du?"}
-      <select id="st">${STATIONS.map(s=>`<option ${s===state.station?"selected":""}>${s}</option>`).join("")}</select></label>
+    ${fromQR?`<div class="picked"><span class="eyebrow">Du prüfst</span><b>${esc(state.station)}</b>
+        <button class="link" id="change">Andere Station wählen</button></div>`
+      :`${photo({imgs:[{f:"stationsname",c:"Der Name steht auf dem Schild über der Station"}]})}
+        <label class="f" for="st">Welche Station prüfst du?
+        <select id="st">${STATIONS.map(s=>`<option ${s===state.station?"selected":""}>${esc(s)}</option>`).join("")}</select></label>`}
     <button class="btn primary" id="go">Prüfung starten</button>
   </section>
   <p class="note">Jede abgeschlossene Prüfung wird gespeichert, damit wir sehen, wo die Fehler am häufigsten liegen.</p>`;
-  document.getElementById("st").onchange=e=>{state.station=e.target.value;lsSet(LS_ST,state.station)};
-  document.getElementById("go").onclick=()=>{state.station=document.getElementById("st").value;lsSet(LS_ST,state.station);
+  const sel=document.getElementById("st");
+  if(sel) sel.onchange=e=>{state.station=e.target.value;lsSet(LS_ST,state.station)};
+  const ch=document.getElementById("change");
+  if(ch) ch.onclick=()=>{state.pickStation=true;renderStart();document.getElementById("st").focus()};
+  document.getElementById("go").onclick=()=>{if(sel){state.station=sel.value;lsSet(LS_ST,state.station)}
     state.node=START;state.history=[];state.started=Date.now();state.saved=null;render();};
 }
 
