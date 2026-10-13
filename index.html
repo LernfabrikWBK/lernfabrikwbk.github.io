@@ -205,7 +205,7 @@ const FLOW={
  TA:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",confirm:true},
  DK3:{imgs:[{f: "docker-angehalten-start", c: "Dunkelblauer Start-Pfeil oben rechts"}],s:3,type:"a",text:"In Docker auf den dunkelblauen Start-Pfeil drücken und warten.",to:"TB",fix:"Docker-Container war gestoppt"},
  TB:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",confirm:true},
- RS:{imgs:[{f: "pc-neustart-windows", c: "Windows: Start, Ein/Aus, Neu starten"}, {f: "linux-power", c: "Station 1 (Linux): Menü oben rechts"}, {f: "linux-neustart", c: "Station 1 (Linux): Neustart"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
+ RS:{imgs:[{f: "pc-neustart-windows", c: "Start, Ein/Aus, Neu starten", os: "windows"}, {f: "linux-power", c: "Menü oben rechts am Bildschirm öffnen", os: "linux"}, {f: "linux-neustart", c: "Ausschalten, dann Neustart wählen", os: "linux"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
  TC:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",confirm:true},
  IO:{imgs:[{f: "io-link-master-strom", c: "IO-Link-Master mit Strom: LEDs leuchten"}],s:3,type:"q",text:"Leuchtet der IO-Link-Master?",yes:"KA",no:"TM7"},
  KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",obsNo:"IO-Link-Kabel nicht gesteckt"},
@@ -285,7 +285,9 @@ function setTab(v){state.view=v;
 document.getElementById("tab-check").onclick=()=>setTab("check");
 document.getElementById("tab-stats").onclick=()=>setTab("stats");
 
-function photo(n){ const L=n.imgs||[]; if(!L.length) return "";
+const LINUX=(CFG.LINUX_STATIONS||[]);
+function photo(n){ const os=LINUX.includes(state.station)?"linux":"windows";
+  const L=(n.imgs||[]).filter(x=>!x.os||x.os===os); if(!L.length) return "";
   return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" loading="lazy"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
 /* Foto antippen = groß anzeigen */
 document.addEventListener("click",e=>{const z=e.target.closest(".zoom");

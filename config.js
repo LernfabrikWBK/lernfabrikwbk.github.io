@@ -10,7 +10,12 @@ window.CONFIG = {
 
   // 2) Namen der Stationen (Reihenfolge = Nummer im QR-Code-Link, ?s=1 ist die erste)
   STATIONS: [
-    "Station 1", "Station 2", "Station 3", "Station 4",
-    "Station 5", "Station 6", "Station 7", "Station 8"
-  ]
+    "Pressen 1", "Pressen 2", "Pressen 3", "Pressen 4",
+    "Schrauben 1", "Schrauben 2",
+    "Fügen 1", "Fügen 2",
+    "Demontagewagen", "Motorprüfstand", "Automatische Pressestation"
+  ],
+
+  // 3) Stationen, deren PC mit Linux statt Windows läuft (zeigt dort die passenden Fotos)
+  LINUX_STATIONS: ["Pressen 1"]
 };

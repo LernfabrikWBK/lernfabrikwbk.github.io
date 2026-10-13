@@ -15,7 +15,7 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 ## Links (nach dem Einrichten)
 
 - Tool: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/`
-- Direkt Station 3: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/?s=3`
+- Direkt eine Station (Nummer = Position in config.js, z. B. 3 = Pressen 3): `https://sazexlucifer1.github.io/KIT_LF_Anleitung/?s=3`
 - Auswertung: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/#auswertung`
 - QR-Codes drucken: `https://sazexlucifer1.github.io/KIT_LF_Anleitung/qr.html`
 

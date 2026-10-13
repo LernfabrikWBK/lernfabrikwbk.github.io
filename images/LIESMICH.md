@@ -30,7 +30,7 @@ Austauschen geht auch selbst: eine Datei in `images/` mit **genau gleichem Namen
 | Docker gestartet? | `docker-taskleiste`, `docker-laeuft` |
 | Docker als Administrator | `docker-admin-ausfuehren`, `docker-bestaetigen` |
 | Docker Start-Pfeil | `docker-angehalten-start` |
-| PC neu starten | `pc-neustart-windows`, `linux-power`, `linux-neustart` |
+| PC neu starten | `pc-neustart-windows` (Windows-Stationen), `linux-power` + `linux-neustart` (nur Linux-Stationen, siehe `LINUX_STATIONS` in config.js) |
 | IO-Link-Master | `io-link-master-strom` |
 | Ergebnis „einsatzbereit" (MES öffnen) | `browser-verknuepfung`, `adresse-mes`, `arbeitsstation-zuordnen` |
 
