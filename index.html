@@ -208,7 +208,7 @@ const FLOW={
  MK:{s:2,type:"q",text:"Steckt das Stromkabel hinten am Monitor fest?",yes:"TM5",no:"MK1"},
  MK1:{s:2,type:"a",text:"Stromkabel hinten am Monitor fest einstecken.",to:"C3",fix:"Monitor-Stromkabel war lose"},
  C3:{imgs:[{f:"monitor-an",c:"LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",hint:"Falls nicht: Power-Schalter am Monitor noch einmal drücken.",yes:"P",no:"TM5",confirm:true},
- P:{imgs:[{f:"anmelden-kennwort",c:"Normal: z. B. der Sperr- oder Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"TO",no:"N"},
+ P:{imgs:[{f:"monitor-sperrbildschirm",c:"Normal: z. B. der Sperrbildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"TO",no:"N"},
  N:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",imgs:[{f:"nuc-aus",c:"NUC aus: Knopf dunkel"},{f:"nuc-an",c:"NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"NC",obsNo:"NUC-PC war aus"},
  N1:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",imgs:[{f:"nuc-an",c:"Power-Knopf drücken"}],s:2,type:"a",text:"NUC-PC einschalten und warten, bis er hochgefahren ist (ca. 1 Minute).",to:"NW"},
  NW:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC?",yes:"P",no:"E",noIfVisited:["E","NC"],
@@ -218,7 +218,7 @@ const FLOW={
  NW2:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC jetzt?",yes:"P",no:"TM8",confirm:true},
  HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",to:"HB",fix:"HDMI-Kabel war lose"},
  HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"TO",no:"TM6",confirm:true},
- TO:{imgs:[{f:"anmelden-kennwort",c:"Sperrbildschirm"}],s:2,type:"q",text:"Den Sperrbildschirm mit dem Finger nach oben wegwischen. Reagiert der Touch?",yes:"LOG",no:"TO1",obsNo:"Touch reagierte nicht"},
+ TO:{imgs:[{f:"monitor-sperrbildschirm",c:"Sperrbildschirm: nach oben wischen"}],s:2,type:"q",text:"Den Sperrbildschirm mit dem Finger nach oben wegwischen. Reagiert der Touch?",yes:"LOG",no:"TO1",obsNo:"Touch reagierte nicht"},
  TO1:{imgs:[{f:"monitor-an",c:"Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Monitor mit dem Power-Schalter aus- und wieder einschalten.",to:"TO2",fix:"Touch: Monitor-Neustart nötig"},
  TO2:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TO3",clearOnNo:true,confirm:true},
  TO3:{s:2,type:"a",text:"Kabel hinten am Monitor abziehen und wieder fest einstecken.",to:"TO4",fix:"Touch: Monitor-Kabel neu gesteckt"},
@@ -234,24 +234,24 @@ const FLOW={
    {l:"Nichts passiert",to:"DA",k:"no",obs:"Docker startete nicht automatisch"}]},
  DWY:{imgs:[{f:"docker-bestaetigen",c:"Mit Ja bestätigen",os:"windows"}],s:3,type:"a",text:"Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft.",to:"R1"},
  DA:{imgs:[{f:"docker-admin-ausfuehren",c:"Rechtsklick: Als Administrator ausführen"},{f:"docker-bestaetigen",c:"Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator starten, die Abfrage mit Ja bestätigen und kurz warten.",to:"R1"},
- R1:{imgs:[{f: "rfid-erkennt-poltopf", c: "Pol-Topf direkt neben den Reader halten"}],s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",to:"R2"},
- R2:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange: Pol-Topf erkannt"}, {f: "rfid-nur-gruen", c: "Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
+ R1:{imgs:[{rfid:"mit",c:"Pol-Topf so einlegen"}],s:3,type:"a",text:"Einen Pol-Topf in die Aufnahme am RFID-Reader einlegen.",to:"R2"},
+ R2:{imgs:[{rfid:"mit",c:"Grün und Orange: Pol-Topf erkannt"},{rfid:"ohne",c:"Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
    {l:"Grün und Orange",to:"SL",k:"yes"},
    {l:"Nur Grün",to:"DK1"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
  SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MES",no:"DK1",noAgain:"DOR3",confirm:true},
  DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
  DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
- TA:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
+ TA:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
  DK3:{imgs:[{f: "docker-angehalten-start", c: "Dunkelblauer Start-Pfeil oben rechts"}],s:3,type:"a",text:"In Docker auf den dunkelblauen Start-Pfeil drücken und warten.",to:"TB",fix:"Docker-Container war gestoppt"},
- TB:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",clearOnNo:true},
+ TB:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"RS",clearOnNo:true},
  RS:{imgs:[{f: "pc-neustart-windows", c: "Start, Ein/Aus, Neu starten", os: "windows"}, {f: "linux-power", c: "Menü oben rechts am Bildschirm öffnen", os: "linux"}, {f: "linux-neustart", c: "Ausschalten, dann Neustart wählen", os: "linux"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
- TC:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",clearOnNo:true},
+ TC:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",clearOnNo:true},
  IO:{imgs:[{f: "io-link-master-strom", c: "IO-Link-Master mit Strom: LEDs leuchten"}],s:3,type:"q",text:"Leuchtet der IO-Link-Master?",yes:"KA",no:"TM7"},
  KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",noAgain:"DOR4",obsNo:"IO-Link-Kabel nicht gesteckt"},
  KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
- MES:{imgs:[{f: "browser-verknuepfung", c: "Firefox in der Taskleiste öffnen"}, {f: "adresse-mes", c: "MES-Adresse auswählen"}, {f: "arbeitsstation-zuordnen", c: "Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
+ MES:{imgs:[{f:"browser-verknuepfung",c:"1. Firefox in der Taskleiste öffnen"},{f:"adresse-mes",c:"2. MES-Adresse auswählen"},{f:"mes-rollenauswahl",c:"3. Rolle auswählen"},{f:"mes-stationszuordnung",c:"4. Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen, die Rolle wählen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
  TM3:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station bekommt keinen Strom",text:"Die Station bekommt keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM4:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station lädt nicht am Netz",text:"Die Station lädt nicht am Netz. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an, obwohl Strom und Kabel geprüft sind. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
@@ -332,8 +332,26 @@ document.getElementById("tab-check").onclick=()=>setTab("check");
 document.getElementById("tab-stats").onclick=()=>setTab("stats");
 
 const LINUX=(CFG.LINUX_STATIONS||[]);
+/* Stationsabhängige Fotos: RFID-Reader und Stationsschild. Schlüssel = Stationsname klein ohne Umlaute */
+const RFID={
+  "pressen-1":[["rfid-pressen-1-orange-mit-poltopf","rfid-pressen-1-gruen-ohne-poltopf"]],
+  "pressen-2":[["rfid-pressen-2-3-orange-mit-poltopf","rfid-pressen-2-3-gruen-ohne-poltopf"]],
+  "pressen-3":[["rfid-pressen-2-3-orange-mit-poltopf","rfid-pressen-2-3-gruen-ohne-poltopf"]],
+  "pressen-4":[["rfid-pressen-4-orange-mit-poltopf","rfid-pressen-4-gruen-ohne-poltopf"]],
+  "schrauben-1":[["rfid-schrauben-1-orange-mit-poltopf","rfid-schrauben-1-gruen-ohne-poltopf"]],
+  "schrauben-2":[["rfid-schrauben-2-orange-mit-poltopf","rfid-schrauben-2-gruen-ohne-poltopf"]],
+  "fuegen-1":[["rfid-fuegen-1-orange-mit-poltopf","rfid-fuegen-1-gruen-ohne-poltopf"]],
+  "fuegen-2":[["rfid-fuegen-2-flach-orange-mit-poltopf","rfid-fuegen-2-flach-gruen-ohne-poltopf","Flacher Reader"],["rfid-fuegen-2-rund-orange-mit-poltopf","rfid-fuegen-2-rund-gruen-ohne-poltopf","Runder Reader"]]
+};
+const RFID_STANDARD=[["rfid-erkennt-poltopf","rfid-nur-gruen"]];
+const SCHILD={"pressen-1":1,"pressen-2":1,"pressen-3":1,"pressen-4":1,"schrauben-1":1,"schrauben-2":1,"fuegen-1":1,"fuegen-2":1};
+function schildImg(st){return SCHILD[slug(st)]?{f:"schild-"+slug(st),c:"Schild über der Station "+st}:{f:"stationsname",c:"Der Name steht auf dem Schild über der Station"}}
+function expandImgs(L){const out=[];const r=RFID[slug(state.station)]||RFID_STANDARD;
+  for(const x of L){ if(!x.rfid){out.push(x);continue}
+    r.forEach(e=>out.push({f:x.rfid==="mit"?e[0]:e[1],c:(e[2]?e[2]+": ":"")+x.c})) }
+  return out;}
 function photo(n){ const os=LINUX.includes(state.station)?"linux":"windows";
-  const L=(n.imgs||[]).filter(x=>!x.os||x.os===os); if(!L.length) return "";
+  const L=expandImgs((n.imgs||[]).filter(x=>!x.os||x.os===os)); if(!L.length) return "";
   return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split('?')[0]+'?r='+Date.now()}"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
 /* Foto antippen = groß anzeigen */
 document.addEventListener("click",e=>{const z=e.target.closest(".zoom");
@@ -361,6 +379,7 @@ function render(){
     ${photo(n)}
     <p class="q">${esc(n.text)}</p>
     ${n.hint?`<p class="hint">${esc(n.hint)}</p>`:""}
+    ${(n.imgs||[]).some(x=>x.rfid)&&(RFID[slug(state.station)]||[]).length>1?`<p class="hint"><b>Diese Station hat zwei RFID-Reader.</b> Prüfe beide und antworte für den Reader, der schlechter aussieht.</p>`:""}
     ${btns}
     <div class="row"><button class="link" id="back">${state.history.length?"Zurück":"Abbrechen"}</button><span class="save">Schritt ${state.history.length+1}</span></div>
   </section>`;
@@ -436,16 +455,16 @@ function renderStart(){
     <span class="eyebrow">Lernfabrik · Funktionsprüfung</span>
     <h1>Läuft die Station?</h1>
     <p class="hint">Du wirst Schritt für Schritt durch die Prüfung geführt: Beleuchtung, Strom, Monitor und PC, Docker und MES. Antworte einfach mit den Buttons.</p>
-    ${fromQR?`<div class="picked"><span class="eyebrow">Du prüfst</span><b>${esc(state.station)}</b>
+    ${fromQR?`${photo({imgs:[schildImg(state.station)]})}<div class="picked"><span class="eyebrow">Du prüfst</span><b>${esc(state.station)}</b>
         <button class="link" id="change">Andere Station wählen</button></div>`
-      :`${photo({imgs:[{f:"stationsname",c:"Der Name steht auf dem Schild über der Station"}]})}
+      :`<div id="schild">${photo({imgs:[schildImg(state.station)]})}</div>
         <label class="f" for="st">Welche Station prüfst du?
         <select id="st">${STATIONS.map(s=>`<option ${s===state.station?"selected":""}>${esc(s)}</option>`).join("")}</select></label>`}
     <button class="btn primary" id="go">Prüfung starten</button>
   </section>
   <p class="note">Jede abgeschlossene Prüfung wird gespeichert, damit wir sehen, wo die Fehler am häufigsten liegen.</p>`;
   const sel=document.getElementById("st");
-  if(sel) sel.onchange=e=>{state.station=e.target.value;lsSet(LS_ST,state.station)};
+  if(sel) sel.onchange=e=>{state.station=e.target.value;lsSet(LS_ST,state.station);document.getElementById("schild").innerHTML=photo({imgs:[schildImg(state.station)]})};
   const ch=document.getElementById("change");
   if(ch) ch.onclick=()=>{state.pickStation=true;renderStart();document.getElementById("st").focus()};
   document.getElementById("go").onclick=()=>{if(sel){state.station=sel.value;lsSet(LS_ST,state.station)}
