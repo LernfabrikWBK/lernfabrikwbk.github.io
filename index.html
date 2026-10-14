@@ -92,6 +92,7 @@ select{font:500 18px var(--f-body);padding:12px;border-radius:10px;border:1px so
 .chips{display:flex;flex-wrap:wrap;gap:6px}
 .chip{font-size:14px;padding:4px 10px;border-radius:999px;background:var(--panel);border:1px solid var(--line)}
 .save{font-family:var(--f-mono);font-size:12px;color:var(--muted)}
+.jump{margin:0;padding:10px 14px;border-radius:10px;background:var(--warn-soft);color:var(--ink);font-size:15px}
 .picked{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:14px 16px;border-radius:12px;background:var(--accent-soft);border:1px solid var(--accent)}
 .picked b{font-family:var(--f-display);font-size:30px;line-height:1.1}
 .picked .link{padding-top:4px}
@@ -160,6 +161,7 @@ td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13p
    confirm = Kontrollfrage: "Ja" bestätigt die offenen fix-Handlungen, "Nein" verwirft sie
    clearOnNo = Zwischenkontrolle: "Nein" verwirft die offenen fix-Handlungen, "Ja" bestätigt noch nichts
    reason  = bei Eskalation: was ungelöst blieb
+   noIfVisited = [Knoten, Ziel]: "Nein" führt zum Ziel, wenn Knoten in diesem Durchlauf schon besucht wurde (z. B. Strom schon geprüft)
    noAgain = wird die Frage im selben Durchlauf ein ZWEITES Mal mit "Nein" beantwortet, geht es hierhin (verhindert Endlosschleifen) */
 const SECTIONS=["Beleuchtung","Stromversorgung","Monitor & PC","Docker & MES"];
 const FLOW={
@@ -175,30 +177,57 @@ const FLOW={
  FB2:{s:0,type:"q",text:"Leuchtet das vordere Panel jetzt?",yes:"FC",no:"TM2",confirm:true,obsNo:"Vorderes Panel lässt sich nicht einschalten"},
  TM2:{s:0,type:"n",text:"Bitte einen Techniker informieren.",hint:"Die Station ist eventuell trotzdem nutzbar, wenn Monitor und PC angehen. Prüf weiter.",to:"C",tech:true},
 
- E:{imgs:[{f: "notaus-gedrueckt", c: "Gedrückt: Station gesperrt"}, {f: "notaus-geloest", c: "Gelöst: alles in Ordnung"}],s:1,type:"q",text:"Ist der Notaus gedrückt?",yes:"E1",no:"F",obsYes:"Notaus war gedrückt"},
- E1:{imgs:[{f: "notaus-geloest", c: "So soll er danach aussehen"}],s:1,type:"a",text:"Notaus durch Ziehen nach oben lösen.",to:"F"},
- F:{imgs:[{f: "hauptschalter-aus", c: "Hauptschalter aus"}, {f: "hauptschalter-an", c: "Hauptschalter an"}],s:1,type:"q",text:"Vordere Tür durch Ziehen öffnen. Ist der Hauptschalter aus?",yes:"F1",no:"G",obsYes:"Hauptschalter war aus"},
- F1:{imgs:[{f: "hauptschalter-an", c: "So soll er danach stehen"}],s:1,type:"a",text:"Hauptschalter einschalten.",to:"G"},
- G:{imgs:[{f: "station-eingeschaltet", c: "Grüner Knopf und Kontroll-LED"}],s:1,type:"a",text:"Grünen Knopf oben rechts an der Arbeitsstation drücken.",to:"H"},
- H:{imgs:[{f: "station-eingeschaltet", c: "Kontroll-LED leuchtet grün"}],s:1,type:"q",text:"Leuchtet die Kontroll-LED?",yes:"M",no:"I",confirm:true,fallback:"Station war nur ausgeschaltet (grüner Knopf)",fallbackUnless:["Notaus war gedrückt","Hauptschalter war aus"]},
- M:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:1,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"B"},
- I:{imgs:[{f: "station-laedt", c: "Smiley, 2 Pfeile: lädt am Netz"}, {f: "batterie-modus", c: "Nur 1 Pfeil: Batteriebetrieb"}],s:1,type:"q",text:"Was zeigt die Batterieanzeige hinter der vorderen Tür?",opts:[
-   {l:"Smiley, 2 Pfeile bewegen sich",to:"TM3"},
-   {l:"Nur 1 Pfeil (Mitte → rechts)",to:"K"},
-   {l:"Anzeige aus oder etwas anderes",to:"TM3"}]},
- K:{imgs:[{f: "kein-stecker-station", c: "Hier fehlt das Netzkabel"}, {f: "stecker-station", c: "Kabel hinten in der Station"}, {f: "stecker-steckdose", c: "Anderes Ende in die Steckdose"}],s:1,type:"a",text:"Die Station läuft im Batteriebetrieb. Netzkabel hinten an eine Steckdose anschließen.",to:"L",fix:"Batteriebetrieb, Netzkabel fehlte"},
- L:{imgs:[{f: "station-laedt", c: "So soll es aussehen: 2 Pfeile"}],s:1,type:"q",text:"Bewegt sich jetzt auch der 2. Pfeil (links → Mitte)?",yes:"C",no:"TM4",confirm:true},
+ E:{imgs:[{f:"notaus-gedrueckt",c:"Gedrückt: Station gesperrt"},{f:"notaus-geloest",c:"Gelöst: alles in Ordnung"}],s:1,type:"q",text:"Ist der Notaus gedrückt?",yes:"E1",no:"F",obsYes:"Notaus war gedrückt"},
+ E1:{imgs:[{f:"notaus-geloest",c:"So soll er danach aussehen"}],s:1,type:"a",text:"Notaus durch Ziehen nach oben lösen.",to:"F"},
+ F:{imgs:[{f:"hauptschalter-aus",c:"Hauptschalter aus"},{f:"hauptschalter-an",c:"Hauptschalter an"}],s:1,type:"q",text:"Vordere Tür durch Ziehen öffnen. Ist der Hauptschalter aus?",yes:"F1",no:"G",obsYes:"Hauptschalter war aus"},
+ F1:{imgs:[{f:"hauptschalter-an",c:"So soll er danach stehen"}],s:1,type:"a",text:"Hauptschalter einschalten.",to:"G"},
+ G:{imgs:[{f:"station-eingeschaltet",c:"Grüner Knopf und Kontroll-LED"}],s:1,type:"a",text:"Grünen Knopf oben rechts an der Arbeitsstation drücken.",to:"H"},
+ H:{imgs:[{f:"station-eingeschaltet",c:"Kontroll-LED leuchtet grün"}],s:1,type:"q",text:"Leuchtet die Kontroll-LED?",yes:"BM",no:"NK0",confirm:true,fallback:"Station war nur ausgeschaltet (grüner Knopf)",fallbackIf:["LP","Keins"],fallbackUnless:["Notaus war gedrückt","Hauptschalter war aus"]},
+ NK0:{imgs:[{f:"kein-stecker-station",c:"Hier gehört das Netzkabel hin"},{f:"stecker-station",c:"Kabel hinten in der Station"},{f:"stecker-steckdose",c:"Anderes Ende in der Steckdose"}],s:1,type:"q",text:"Steckt das Netzkabel hinten an der Station und in der Steckdose?",yes:"TM3",no:"K0"},
+ K0:{imgs:[{f:"stecker-station",c:"Kabel hinten in die Station"},{f:"stecker-steckdose",c:"Anderes Ende in die Steckdose"}],s:1,type:"a",text:"Netzkabel hinten an der Station und in der Steckdose einstecken.",to:"PT0",fix:"Batterie leer, Netzkabel fehlte"},
+ PT0:{s:1,type:"q",text:"Kam nach dem Einstecken ein sich wiederholender Piepton?",hint:"Nur fürs Protokoll, beide Antworten sind in Ordnung.",yes:"H2",no:"H2"},
+ H2:{imgs:[{f:"station-eingeschaltet",c:"Kontroll-LED leuchtet grün"}],s:1,type:"q",text:"Grünen Knopf nochmal drücken. Leuchtet die Kontroll-LED jetzt?",yes:"NA",no:"TM3"},
+ BM:{s:1,type:"q",text:"Soll die Station am Netz oder mit Batterie laufen?",hint:"Netzbetrieb = Kabel steckt in der Steckdose. Batteriebetrieb = ohne Kabel.",opts:[
+   {l:"Netzbetrieb",to:"NK"},
+   {l:"Batteriebetrieb",to:"BA"}]},
+ NK:{imgs:[{f:"stecker-station",c:"Kabel hinten in der Station"},{f:"stecker-steckdose",c:"Anderes Ende in der Steckdose"}],s:1,type:"q",text:"Steckt das Netzkabel hinten an der Station und in der Steckdose?",yes:"NA",no:"K",obsNo:"Netzbetrieb gewünscht, Netzkabel fehlte"},
+ K:{imgs:[{f:"kein-stecker-station",c:"Hier gehört das Netzkabel hin"},{f:"stecker-station",c:"Kabel hinten in die Station"},{f:"stecker-steckdose",c:"Anderes Ende in die Steckdose"}],s:1,type:"a",text:"Netzkabel hinten an der Station und in der Steckdose einstecken.",to:"PT"},
+ PT:{s:1,type:"q",text:"Kam nach dem Einstecken ein sich wiederholender Piepton?",hint:"Nur fürs Protokoll, beide Antworten sind in Ordnung.",yes:"NA",no:"NA"},
+ NA:{imgs:[{f:"station-laedt",c:"Netzbetrieb: Smiley, 2 Pfeile bewegen sich"},{f:"batterie-modus",c:"Batteriebetrieb: nur 1 Pfeil"}],s:1,type:"q",text:"Anzeige hinter der vorderen Tür: Bewegen sich 2 Pfeile (links → Mitte und Mitte → rechts)?",yes:"C",no:"TM4",confirm:true},
+ BA:{imgs:[{f:"batterie-modus",c:"Batteriebetrieb: 1 Pfeil Mitte → rechts"},{f:"station-laedt",c:"Netzbetrieb: 2 Pfeile"}],s:1,type:"q",text:"Was zeigt die Anzeige hinter der vorderen Tür?",opts:[
+   {l:"1 Pfeil (Mitte → rechts)",to:"BV",k:"yes"},
+   {l:"2 Pfeile",to:"C"},
+   {l:"Keine Pfeile / Anzeige aus",to:"TM3",k:"no"}]},
+ BV:{imgs:[{f:"batterie-modus",c:"Batteriespannung steht in der Anzeige (V)"}],s:1,type:"q",text:"Zeigt die Anzeige eine Batteriespannung über 24 V?",yes:"C",no:"BL",obsNo:"Batteriespannung unter 24 V"},
+ BL:{s:1,type:"n",text:"Die Batterie ist zu schwach.",hint:"Die Station muss jetzt am Netz laufen und laden. Im nächsten Schritt schließt du das Netzkabel an.",to:"K"},
 
- C:{imgs:[{f: "monitor-aus", c: "LED aus"}, {f: "monitor-an", c: "LED leuchtet"}],s:2,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"B"},
- B:{imgs:[{f: "monitor-aus", c: "Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Power-Schalter am Monitor einmal drücken.",to:"C2",fix:"Monitor war ausgeschaltet"},
- C2:{imgs:[{f: "monitor-an", c: "LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",yes:"P",no:"TM5",confirm:true},
- P:{imgs:[{f: "anmelden-kennwort", c: "Normal: z. B. der Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"LOG",no:"N"},
- N:{imgs:[{f: "nuc-aus", c: "NUC aus: Knopf dunkel"}, {f: "nuc-an", c: "NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"TM8",obsNo:"NUC-PC war aus"},
- N1:{imgs:[{f: "nuc-an", c: "Power-Knopf drücken, bis er blau leuchtet"}],s:2,type:"a",text:"NUC-PC einschalten.",to:"P"},
+ C:{imgs:[{f:"monitor-aus",c:"LED aus"},{f:"monitor-an",c:"LED leuchtet"}],s:2,type:"q",text:"Leuchtet die LED am Monitor?",yes:"P",no:"B"},
+ B:{imgs:[{f:"monitor-aus",c:"Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Power-Schalter am Monitor einmal drücken.",to:"C2",fix:"Monitor war ausgeschaltet"},
+ C2:{imgs:[{f:"monitor-an",c:"LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",yes:"P",no:"E",noIfVisited:["E","MK"],confirm:true,
+   noHint:"Dann prüfen wir jetzt die Stromversorgung der Station."},
+ MK:{s:2,type:"q",text:"Steckt das Stromkabel hinten am Monitor fest?",yes:"TM5",no:"MK1"},
+ MK1:{s:2,type:"a",text:"Stromkabel hinten am Monitor fest einstecken.",to:"C3",fix:"Monitor-Stromkabel war lose"},
+ C3:{imgs:[{f:"monitor-an",c:"LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",hint:"Falls nicht: Power-Schalter am Monitor noch einmal drücken.",yes:"P",no:"TM5",confirm:true},
+ P:{imgs:[{f:"anmelden-kennwort",c:"Normal: z. B. der Sperr- oder Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"TO",no:"N"},
+ N:{imgs:[{f:"nuc-aus",c:"NUC aus: Knopf dunkel"},{f:"nuc-an",c:"NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"NC",obsNo:"NUC-PC war aus"},
+ N1:{imgs:[{f:"nuc-an",c:"Power-Knopf drücken"}],s:2,type:"a",text:"NUC-PC einschalten und warten, bis er hochgefahren ist (ca. 1 Minute).",to:"NW"},
+ NW:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC?",yes:"P",no:"E",noIfVisited:["E","NC"],
+   noHint:"Dann prüfen wir jetzt die Stromversorgung der Station."},
+ NC:{s:2,type:"q",text:"Steckt das Stromkabel am NUC-PC fest?",yes:"TM8",no:"NC1",noAgain:"TM8"},
+ NC1:{imgs:[{f:"nuc-an",c:"Danach Power-Knopf drücken"}],s:2,type:"a",text:"Stromkabel am NUC-PC fest einstecken, NUC einschalten und warten, bis er hochgefahren ist.",to:"NW2",fix:"NUC-Stromkabel war lose"},
+ NW2:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC jetzt?",yes:"P",no:"TM8",confirm:true},
  HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",to:"HB",fix:"HDMI-Kabel war lose"},
- HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"LOG",no:"TM6",confirm:true},
- LOG:{imgs:[{f: "anmelden-kennwort", c: "Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Falls nötig: per Touch mit dem Benutzer Lernfabrik und dem Lernfabrik-Passwort anmelden.",to:"R1"},
+ HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"TO",no:"TM6",confirm:true},
+ TO:{imgs:[{f:"anmelden-kennwort",c:"Sperrbildschirm"}],s:2,type:"q",text:"Den Sperrbildschirm mit dem Finger nach oben wegwischen. Reagiert der Touch?",yes:"LOG",no:"TO1",obsNo:"Touch reagierte nicht"},
+ TO1:{imgs:[{f:"monitor-an",c:"Power-Schalter seitlich am Monitor"}],s:2,type:"a",text:"Monitor mit dem Power-Schalter aus- und wieder einschalten.",to:"TO2",fix:"Touch: Monitor-Neustart nötig"},
+ TO2:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TO3",clearOnNo:true,confirm:true},
+ TO3:{s:2,type:"a",text:"Kabel hinten am Monitor abziehen und wieder fest einstecken.",to:"TO4",fix:"Touch: Monitor-Kabel neu gesteckt"},
+ TO4:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TM9",confirm:true},
+ LOG:{imgs:[{f:"anmelden-kennwort",c:"Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabrik-Passwort anmelden.",to:"DW"},
 
+ DW:{imgs:[{f:"docker-bestaetigen",c:"Diese Abfrage sollte von selbst erscheinen"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die Docker-Abfrage von selbst?",yes:"DWY",no:"DA",obsNo:"Docker startete nicht automatisch"},
+ DWY:{imgs:[{f:"docker-bestaetigen",c:"Mit Ja bestätigen"}],s:3,type:"a",text:"Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft.",to:"R1"},
+ DA:{imgs:[{f:"docker-admin-ausfuehren",c:"Rechtsklick: Als Administrator ausführen"},{f:"docker-bestaetigen",c:"Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator starten, die Abfrage mit Ja bestätigen und kurz warten.",to:"R1"},
  R1:{imgs:[{f: "rfid-erkennt-poltopf", c: "Pol-Topf direkt neben den Reader halten"}],s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",to:"R2"},
  R2:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange: Pol-Topf erkannt"}, {f: "rfid-nur-gruen", c: "Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
    {l:"Grün und Orange",to:"SL",k:"yes"},
@@ -219,10 +248,11 @@ const FLOW={
  MES:{imgs:[{f: "browser-verknuepfung", c: "Firefox in der Taskleiste öffnen"}, {f: "adresse-mes", c: "MES-Adresse auswählen"}, {f: "arbeitsstation-zuordnen", c: "Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
  TM3:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station bekommt keinen Strom",text:"Die Station bekommt keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM4:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station lädt nicht am Netz",text:"Die Station lädt nicht am Netz. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
- TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
+ TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an, obwohl Strom und Kabel geprüft sind. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM6:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Kein Bild trotz PC und HDMI",text:"Kein Bild, obwohl PC an und HDMI gesteckt. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM7:{type:"end",kind:"tech",title:"Techniker rufen",reason:"IO-Link-Master ohne Strom",text:"Der IO-Link-Master hat keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
- TM8:{type:"end",kind:"tech",title:"Techniker rufen",reason:"NUC-PC lässt sich nicht einschalten",text:"Der NUC-PC geht nicht an. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
+ TM8:{type:"end",kind:"tech",title:"Techniker rufen",reason:"NUC-PC lässt sich nicht einschalten",text:"Der NUC-PC geht nicht an, obwohl Strom und Kabel geprüft sind. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
+ TM9:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Touch funktioniert nicht",text:"Der Touch am Monitor reagiert nicht, auch nach Neustart und neu gestecktem Kabel. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  DOR3:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Smart-Light wird trotz laufendem Docker nicht grün",text:"Der RFID-Reader erkennt den Pol-Topf, aber das Smart-Light wird auch nach dem Docker-Neustart nicht grün."},
  DOR4:{type:"end",kind:"dorian",title:"Dorian melden",reason:"IO-Link-Kabel: richtige Position unklar",text:"Die Kabel am IO-Link-Master stecken auch nach dem Einstecken nicht richtig oder die Position ist unklar."},
  DOR1:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Docker läuft auch nach PC-Neustart nicht",text:"Docker startet auch nach einem PC-Neustart nicht richtig."},
@@ -237,7 +267,7 @@ function computeFindings(hist){
     if(n.type==="a"&&n.fix) pending.push(n.fix);
     if(n.confirm&&h.pos===true){
       if(pending.length) found.push(...pending);
-      else if(n.fallback&&!(n.fallbackUnless||[]).some(x=>found.includes(x))) found.push(n.fallback);
+      else if(n.fallback&&!(n.fallbackUnless||[]).some(x=>found.includes(x))&&(!n.fallbackIf||hist.some(x=>x.id===n.fallbackIf[0]&&x.answer===n.fallbackIf[1]))) found.push(n.fallback);
       pending=[];
     } else if((n.confirm||n.clearOnNo)&&h.pos===false){pending=[];}
   }
@@ -298,7 +328,7 @@ document.getElementById("tab-stats").onclick=()=>setTab("stats");
 const LINUX=(CFG.LINUX_STATIONS||[]);
 function photo(n){ const os=LINUX.includes(state.station)?"linux":"windows";
   const L=(n.imgs||[]).filter(x=>!x.os||x.os===os); if(!L.length) return "";
-  return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" loading="lazy"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
+  return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split('?')[0]+'?r='+Date.now()}"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
 /* Foto antippen = groß anzeigen */
 document.addEventListener("click",e=>{const z=e.target.closest(".zoom");
   if(z){const lb=document.getElementById("lb");lb.querySelector("img").src=z.dataset.src;lb.querySelector("p").textContent=z.dataset.cap;lb.hidden=false;return}
@@ -317,7 +347,9 @@ function render(){
   if(n.type==="q"&&n.opts){btns=`<div class="answers list">${n.opts.map((o,i)=>`<button class="btn ${o.k||"opt"}" data-opt="${i}">${esc(o.l)}</button>`).join("")}</div>`}
   else if(n.type==="q"){btns=`<div class="answers"><button class="btn yes" data-yn="yes">Ja</button><button class="btn no" data-yn="no">Nein</button></div>`}
   else{btns=`<button class="btn done" data-next="1">${n.type==="a"?"Erledigt":"Verstanden, weiter"}</button>`}
-  $view.innerHTML=`<section class="card step">
+  const last=state.history[state.history.length-1], lf=last&&FLOW[last.id];
+  const jump=lf&&lf.noHint&&last.answer==="Nein"&&state.node===lf.no?`<p class="jump">${esc(lf.noHint)}</p>`:"";
+  $view.innerHTML=`${jump}<section class="card step">
     <div class="row"><span class="eyebrow">${state.station} · ${n.s+1}/4 ${SECTIONS[n.s]}</span>${kindTag}</div>
     ${sectionBar(n.s)}
     ${photo(n)}
@@ -327,7 +359,9 @@ function render(){
     <div class="row"><button class="link" id="back">${state.history.length?"Zurück":"Abbrechen"}</button><span class="save">Schritt ${state.history.length+1}</span></div>
   </section>`;
   $view.querySelectorAll("[data-opt]").forEach(b=>b.onclick=()=>{const o=n.opts[+b.dataset.opt];go(o.to,o.l,{obs:o.obs})});
-  $view.querySelectorAll("[data-yn]").forEach(b=>b.onclick=()=>{const y=b.dataset.yn==="yes";const again=state.history.some(h=>h.id===state.node);go(y?n.yes:(n.noAgain&&again?n.noAgain:n.no),y?"Ja":"Nein",{obs:y?n.obsYes:n.obsNo,pos:y})});
+  $view.querySelectorAll("[data-yn]").forEach(b=>b.onclick=()=>{const y=b.dataset.yn==="yes";const again=state.history.some(h=>h.id===state.node);
+    const visited=n.noIfVisited&&state.history.some(h=>h.id===n.noIfVisited[0]);
+    go(y?n.yes:(n.noAgain&&again?n.noAgain:visited?n.noIfVisited[1]:n.no),y?"Ja":"Nein",{obs:y?n.obsYes:n.obsNo,pos:y})});
   $view.querySelectorAll("[data-next]").forEach(b=>b.onclick=()=>go(n.to,n.type==="a"?"Erledigt":"Weiter",{tech:n.tech}));
   document.getElementById("back").onclick=back;
 }

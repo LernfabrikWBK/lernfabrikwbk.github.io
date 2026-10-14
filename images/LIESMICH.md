@@ -22,8 +22,10 @@ Austauschen geht auch selbst: eine Datei in `images/` mit **genau gleichem Namen
 | Grüner Knopf / Kontroll-LED | `station-eingeschaltet` |
 | Monitor-LED | `monitor-aus`, `monitor-an` |
 | Batterieanzeige | `station-laedt`, `batterie-modus` |
+| Netz- oder Batteriebetrieb, Batteriespannung | `station-laedt`, `batterie-modus` |
 | Netzkabel anschließen | `kein-stecker-station`, `stecker-station`, `stecker-steckdose` |
-| Normales Bild / Anmelden | `anmelden-kennwort` |
+| Normales Bild / Touch / Anmelden | `anmelden-kennwort` |
+| Docker-Abfrage nach dem Anmelden | `docker-bestaetigen` |
 | NUC-PC an? / einschalten | `nuc-aus`, `nuc-an` |
 | RFID-Reader | `rfid-erkennt-poltopf`, `rfid-nur-gruen` |
 | Smart-Light | `smartlight-gruen`, `smartlight-aus` |
@@ -36,4 +38,4 @@ Austauschen geht auch selbst: eine Datei in `images/` mit **genau gleichem Namen
 
 Noch nicht verwendet: `docker-laeuft-2`, `nur-eine-smart-led`, `switch-strom`.
 
-Noch ohne Foto: Fernbedienung für die LED-Panels, HDMI-Kabel am NUC-PC.
+Noch ohne Foto: Fernbedienung für die LED-Panels, HDMI-Kabel am NUC-PC, Stromkabel hinten am Monitor, Stromkabel am NUC-PC, Kabel hinten am Monitor (Touch).

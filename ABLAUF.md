@@ -1,13 +1,13 @@
 # Ablauf Stations-Check
 
 Automatisch aus `index.html` (Block `FLOW`) erzeugt. Grün = einsatzbereit, rot = Techniker, orange = Dorian.
-Gestrichelte Pfeile: Wird dieselbe Frage im selben Durchlauf ein zweites Mal mit „Nein" beantwortet, geht es dorthin (verhindert Endlosschleifen).
+Gestrichelte Pfeile: „Nein (2. Mal)" = dieselbe Frage zum zweiten Mal mit Nein beantwortet; „Nein, Strom schon geprüft" = der Abschnitt Stromversorgung wurde in diesem Durchlauf schon durchlaufen.
 
 ## Geprüft
 
-- Alle 50 Schritte sind erreichbar, keine Sackgassen.
-- Alle 11 Ergebnisse sind erreichbar.
-- Keine Endlosschleifen: Jeder der 18.590 möglichen Wege endet bei einem Ergebnis.
+- Alle 74 Schritte erreichbar, keine Sackgassen.
+- Alle 12 Ergebnisse erreichbar.
+- Keine Endlosschleifen: über 11 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
 
 ```mermaid
 flowchart TD
@@ -27,23 +27,46 @@ subgraph S1["2 – Stromversorgung"]
   F1["Hauptschalter einschalten."]
   G["Grünen Knopf oben rechts an der Arbeitsstation drücken."]
   H{"Leuchtet die Kontroll-LED?"}
-  M{"Leuchtet die LED am Monitor?"}
-  I{"Was zeigt die Batterieanzeige hinter der vorderen Tür?"}
-  K["Die Station läuft im Batteriebetrieb. Netzkabel hinten an …"]
-  L{"Bewegt sich jetzt auch der 2. Pfeil (links → Mitte)?"}
+  NK0{"Steckt das Netzkabel hinten an der Station und in der Stec…"}
+  K0["Netzkabel hinten an der Station und in der Steckdose einst…"]
+  PT0{"Kam nach dem Einstecken ein sich wiederholender Piepton?"}
+  H2{"Grünen Knopf nochmal drücken. Leuchtet die Kontroll-LED je…"}
+  BM{"Soll die Station am Netz oder mit Batterie laufen?"}
+  NK{"Steckt das Netzkabel hinten an der Station und in der Stec…"}
+  K["Netzkabel hinten an der Station und in der Steckdose einst…"]
+  PT{"Kam nach dem Einstecken ein sich wiederholender Piepton?"}
+  NA{"Anzeige hinter der vorderen Tür: Bewegen sich 2 Pfeile (li…"}
+  BA{"Was zeigt die Anzeige hinter der vorderen Tür?"}
+  BV{"Zeigt die Anzeige eine Batteriespannung über 24 V?"}
+  BL["Hinweis: Die Batterie ist zu schwach."]
 end
 subgraph S2["3 – Monitor & PC"]
   C{"Leuchtet die LED am Monitor?"}
   B["Power-Schalter am Monitor einmal drücken."]
   C2{"Leuchtet die Monitor-LED jetzt?"}
+  MK{"Steckt das Stromkabel hinten am Monitor fest?"}
+  MK1["Stromkabel hinten am Monitor fest einstecken."]
+  C3{"Leuchtet die Monitor-LED jetzt?"}
   P{"Zeigt der Monitor ein normales Bild?"}
   N{"Ist der NUC-PC an?"}
-  N1["NUC-PC einschalten."]
+  N1["NUC-PC einschalten und warten, bis er hochgefahren ist (ca…"]
+  NW{"Leuchtet die LED am NUC-PC?"}
+  NC{"Steckt das Stromkabel am NUC-PC fest?"}
+  NC1["Stromkabel am NUC-PC fest einstecken, NUC einschalten und …"]
+  NW2{"Leuchtet die LED am NUC-PC jetzt?"}
   HD["HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken."]
   HB{"Ist jetzt ein Bild da?"}
-  LOG["Falls nötig: per Touch mit dem Benutzer Lernfabrik und dem…"]
+  TO{"Den Sperrbildschirm mit dem Finger nach oben wegwischen. R…"}
+  TO1["Monitor mit dem Power-Schalter aus- und wieder einschalten."]
+  TO2{"Nochmal nach oben wischen. Reagiert der Touch jetzt?"}
+  TO3["Kabel hinten am Monitor abziehen und wieder fest einstecken."]
+  TO4{"Nochmal nach oben wischen. Reagiert der Touch jetzt?"}
+  LOG["Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabri…"]
 end
 subgraph S3["4 – Docker & MES"]
+  DW{"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die…"}
+  DWY["Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft."]
+  DA["Docker als Administrator starten, die Abfrage mit Ja bestä…"]
   R1["Einen Pol-Topf an den RFID-Reader halten."]
   R2{"Was leuchtet am RFID-Reader?"}
   SL{"Leuchtet das Smart-Light oben grün?"}
@@ -65,6 +88,7 @@ TM5(["Techniker rufen: Monitor geht nicht an"])
 TM6(["Techniker rufen: Kein Bild trotz PC und HDMI"])
 TM7(["Techniker rufen: IO-Link-Master ohne Strom"])
 TM8(["Techniker rufen: NUC-PC lässt sich nicht einschalten"])
+TM9(["Techniker rufen: Touch funktioniert nicht"])
 DOR3(["Dorian melden: Smart-Light wird trotz laufendem Docker nicht grün"])
 DOR4(["Dorian melden: IO-Link-Kabel: richtige Position unklar"])
 DOR1(["Dorian melden: Docker läuft auch nach PC-Neustart nicht"])
@@ -88,31 +112,72 @@ F -->|Ja| F1
 F -->|Nein| G
 F1 --> G
 G --> H
-H -->|Ja| M
-H -->|Nein| I
-M -->|Ja| P
-M -->|Nein| B
-I -->|"Smiley, 2 Pfeile bewegen sich"| TM3
-I -->|"Nur 1 Pfeil (Mitte → rechts)"| K
-I -->|"Anzeige aus oder etwas anderes"| TM3
-K --> L
-L -->|Ja| C
-L -->|Nein| TM4
+H -->|Ja| BM
+H -->|Nein| NK0
+NK0 -->|Ja| TM3
+NK0 -->|Nein| K0
+K0 --> PT0
+PT0 -->|Ja| H2
+PT0 -->|Nein| H2
+H2 -->|Ja| NA
+H2 -->|Nein| TM3
+BM -->|"Netzbetrieb"| NK
+BM -->|"Batteriebetrieb"| BA
+NK -->|Ja| NA
+NK -->|Nein| K
+K --> PT
+PT -->|Ja| NA
+PT -->|Nein| NA
+NA -->|Ja| C
+NA -->|Nein| TM4
+BA -->|"1 Pfeil (Mitte → rechts)"| BV
+BA -->|"2 Pfeile"| C
+BA -->|"Keine Pfeile / Anzeige aus"| TM3
+BV -->|Ja| C
+BV -->|Nein| BL
+BL --> K
 C -->|Ja| P
 C -->|Nein| B
 B --> C2
 C2 -->|Ja| P
-C2 -->|Nein| TM5
-P -->|Ja| LOG
+C2 -->|Nein| E
+C2 -.->|"Nein, Strom schon geprüft"| MK
+MK -->|Ja| TM5
+MK -->|Nein| MK1
+MK1 --> C3
+C3 -->|Ja| P
+C3 -->|Nein| TM5
+P -->|Ja| TO
 P -->|Nein| N
 N -->|Ja| HD
 N -->|Nein| N1
-N -.->|"Nein (2. Mal)"| TM8
-N1 --> P
+N -.->|"Nein (2. Mal)"| NC
+N1 --> NW
+NW -->|Ja| P
+NW -->|Nein| E
+NW -.->|"Nein, Strom schon geprüft"| NC
+NC -->|Ja| TM8
+NC -->|Nein| NC1
+NC -.->|"Nein (2. Mal)"| TM8
+NC1 --> NW2
+NW2 -->|Ja| P
+NW2 -->|Nein| TM8
 HD --> HB
-HB -->|Ja| LOG
+HB -->|Ja| TO
 HB -->|Nein| TM6
-LOG --> R1
+TO -->|Ja| LOG
+TO -->|Nein| TO1
+TO1 --> TO2
+TO2 -->|Ja| LOG
+TO2 -->|Nein| TO3
+TO3 --> TO4
+TO4 -->|Ja| LOG
+TO4 -->|Nein| TM9
+LOG --> DW
+DW -->|Ja| DWY
+DW -->|Nein| DA
+DWY --> R1
+DA --> R1
 R1 --> R2
 R2 -->|"Grün und Orange"| SL
 R2 -->|"Nur Grün"| DK1
@@ -141,7 +206,7 @@ classDef ok fill:#e1f1e0,stroke:#2f7d32,color:#173404
 classDef tech fill:#f8e0dc,stroke:#c0392b,color:#501313
 classDef dorian fill:#fbecd3,stroke:#b26a00,color:#412402
 class MES ok
-class TM3,TM4,TM5,TM6,TM7,TM8 tech
+class TM3,TM4,TM5,TM6,TM7,TM8,TM9 tech
 class DOR3,DOR4,DOR1,DOR2 dorian
 
 ```
