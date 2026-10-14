@@ -209,12 +209,12 @@ const FLOW={
  MK1:{s:2,type:"a",text:"Stromkabel hinten am Monitor fest einstecken.",to:"C3",fix:"Monitor-Stromkabel war lose"},
  C3:{imgs:[{f:"monitor-an",c:"LED leuchtet"}],s:2,type:"q",text:"Leuchtet die Monitor-LED jetzt?",hint:"Falls nicht: Power-Schalter am Monitor noch einmal drücken.",yes:"P",no:"TM5",confirm:true},
  P:{imgs:[{f:"anmelden-kennwort",c:"Normal: z. B. der Sperr- oder Anmeldebildschirm"}],s:2,type:"q",text:"Zeigt der Monitor ein normales Bild?",yes:"TO",no:"N"},
- N:{imgs:[{f:"nuc-aus",c:"NUC aus: Knopf dunkel"},{f:"nuc-an",c:"NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"NC",obsNo:"NUC-PC war aus"},
- N1:{imgs:[{f:"nuc-an",c:"Power-Knopf drücken"}],s:2,type:"a",text:"NUC-PC einschalten und warten, bis er hochgefahren ist (ca. 1 Minute).",to:"NW"},
+ N:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",imgs:[{f:"nuc-aus",c:"NUC aus: Knopf dunkel"},{f:"nuc-an",c:"NUC an: Knopf leuchtet blau"}],s:2,type:"q",text:"Ist der NUC-PC an?",yes:"HD",no:"N1",noAgain:"NC",obsNo:"NUC-PC war aus"},
+ N1:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",imgs:[{f:"nuc-an",c:"Power-Knopf drücken"}],s:2,type:"a",text:"NUC-PC einschalten und warten, bis er hochgefahren ist (ca. 1 Minute).",to:"NW"},
  NW:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC?",yes:"P",no:"E",noIfVisited:["E","NC"],
    noHint:"Dann prüfen wir jetzt die Stromversorgung der Station."},
- NC:{s:2,type:"q",text:"Steckt das Stromkabel am NUC-PC fest?",yes:"TM8",no:"NC1",noAgain:"TM8"},
- NC1:{imgs:[{f:"nuc-an",c:"Danach Power-Knopf drücken"}],s:2,type:"a",text:"Stromkabel am NUC-PC fest einstecken, NUC einschalten und warten, bis er hochgefahren ist.",to:"NW2",fix:"NUC-Stromkabel war lose"},
+ NC:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",s:2,type:"q",text:"Steckt das Stromkabel am NUC-PC fest?",yes:"TM8",no:"NC1",noAgain:"TM8"},
+ NC1:{hint:"Der NUC-PC sitzt hinter der vorderen Tür, links in der Mitte.",imgs:[{f:"nuc-an",c:"Danach Power-Knopf drücken"}],s:2,type:"a",text:"Stromkabel am NUC-PC fest einstecken, NUC einschalten und warten, bis er hochgefahren ist.",to:"NW2",fix:"NUC-Stromkabel war lose"},
  NW2:{imgs:[{f:"nuc-an",c:"LED leuchtet blau"}],s:2,type:"q",text:"Leuchtet die LED am NUC-PC jetzt?",yes:"P",no:"TM8",confirm:true},
  HD:{s:2,type:"a",text:"HDMI-Kabel an Monitor und NUC-PC prüfen und fest einstecken.",to:"HB",fix:"HDMI-Kabel war lose"},
  HB:{s:2,type:"q",text:"Ist jetzt ein Bild da?",yes:"TO",no:"TM6",confirm:true},
@@ -225,8 +225,14 @@ const FLOW={
  TO4:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TM9",confirm:true},
  LOG:{imgs:[{f:"anmelden-kennwort",c:"Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabrik-Passwort anmelden.",to:"DW"},
 
- DW:{imgs:[{f:"docker-bestaetigen",c:"Diese Abfrage sollte von selbst erscheinen"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die Docker-Abfrage von selbst?",yes:"DWY",no:"DA",obsNo:"Docker startete nicht automatisch"},
- DWY:{imgs:[{f:"docker-bestaetigen",c:"Mit Ja bestätigen"}],s:3,type:"a",text:"Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft.",to:"R1"},
+ DW:{type:"switch",by:"docker",cases:{admin:"DWA",auto:"DWN",unknown:"DWU"}},
+ DWA:{imgs:[{f:"docker-bestaetigen",c:"Diese Abfrage sollte von selbst erscheinen",os:"windows"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die Docker-Abfrage von selbst?",yes:"DWY",no:"DA",obsNo:"Docker startete nicht automatisch"},
+ DWN:{imgs:[{f:"docker-taskleiste",c:"Docker-Symbol in der Taskleiste"},{f:"docker-laeuft",c:"Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Startet Docker von selbst?",hint:"An dieser Station kommt keine Abfrage. Docker erscheint einfach in der Taskleiste.",yes:"R1",no:"DA",obsNo:"Docker startete nicht automatisch"},
+ DWU:{imgs:[{f:"docker-bestaetigen",c:"Abfrage, die erscheinen kann",os:"windows"},{f:"docker-taskleiste",c:"Docker-Symbol in der Taskleiste"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Was passiert mit Docker?",opts:[
+   {l:"Eine Abfrage erscheint",to:"DWY"},
+   {l:"Docker startet ohne Abfrage",to:"R1",k:"yes"},
+   {l:"Nichts passiert",to:"DA",k:"no",obs:"Docker startete nicht automatisch"}]},
+ DWY:{imgs:[{f:"docker-bestaetigen",c:"Mit Ja bestätigen",os:"windows"}],s:3,type:"a",text:"Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft.",to:"R1"},
  DA:{imgs:[{f:"docker-admin-ausfuehren",c:"Rechtsklick: Als Administrator ausführen"},{f:"docker-bestaetigen",c:"Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator starten, die Abfrage mit Ja bestätigen und kurz warten.",to:"R1"},
  R1:{imgs:[{f: "rfid-erkennt-poltopf", c: "Pol-Topf direkt neben den Reader halten"}],s:3,type:"a",text:"Einen Pol-Topf an den RFID-Reader halten.",to:"R2"},
  R2:{imgs:[{f: "rfid-erkennt-poltopf", c: "Grün und Orange: Pol-Topf erkannt"}, {f: "rfid-nur-gruen", c: "Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
@@ -366,9 +372,12 @@ function render(){
   document.getElementById("back").onclick=back;
 }
 
+/* Automatische Weichen (ohne Frage), z. B. Docker-Verhalten pro Station */
+function dockerMode(st){const c=CFG;if((c.DOCKER_MIT_ABFRAGE||[]).includes(st))return"admin";if((c.DOCKER_OHNE_ABFRAGE||[]).includes(st))return"auto";return"unknown"}
+function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):"unknown"];n=FLOW[id]}return id}
 function go(to,answer,x){
   state.history.push({id:state.node,answer,obs:x.obs||null,pos:x.pos===undefined?null:x.pos,tech:!!x.tech});
-  state.node=to; render(); if(FLOW[to].type==="end") finish(); window.scrollTo(0,0);
+  state.node=resolve(to); render(); if(FLOW[state.node].type==="end") finish(); window.scrollTo(0,0);
 }
 function back(){
   if(!state.history.length){state.node=null;render();return;}

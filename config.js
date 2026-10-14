@@ -20,5 +20,10 @@ window.CONFIG = {
   ],
 
   // 3) Stationen, deren PC mit Linux statt Windows läuft (zeigt dort die passenden Fotos)
-  LINUX_STATIONS: ["Pressen 1"]
+  LINUX_STATIONS: ["Pressen 1"],
+
+  // 4) Docker nach dem Anmelden: Kommt eine Abfrage (Admin/Bestätigung) oder startet Docker still von selbst?
+  //    Stationen, die in keiner Liste stehen, bekommen eine Auswahl ("Abfrage kam" / "startete ohne Abfrage" / "nichts passiert").
+  DOCKER_MIT_ABFRAGE:  ["Pressen 1", "Pressen 2", "Fügen 1"],
+  DOCKER_OHNE_ABFRAGE: ["Pressen 3", "Pressen 4", "Fügen 2", "Schrauben 1", "Schrauben 2"]
 };

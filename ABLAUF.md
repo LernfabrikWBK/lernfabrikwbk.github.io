@@ -3,14 +3,17 @@
 Automatisch aus `index.html` (Block `FLOW`) erzeugt. Grün = einsatzbereit, rot = Techniker, orange = Dorian.
 Gestrichelte Pfeile: „Nein (2. Mal)" = dieselbe Frage zum zweiten Mal mit Nein beantwortet; „Nein, Strom schon geprüft" = der Abschnitt Stromversorgung wurde in diesem Durchlauf schon durchlaufen.
 
+Die Docker-Abfrage nach dem Anmelden hängt von der Station ab (`config.js`: `DOCKER_MIT_ABFRAGE` / `DOCKER_OHNE_ABFRAGE`).
+
 ## Geprüft
 
-- Alle 74 Schritte erreichbar, keine Sackgassen.
+- Alle 77 Schritte erreichbar, keine Sackgassen.
 - Alle 12 Ergebnisse erreichbar.
-- Keine Endlosschleifen: über 11 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
+- Keine Endlosschleifen: über 39 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
 
 ```mermaid
 flowchart TD
+DW{{"Docker-Verhalten der Station"}}
 subgraph S0["1 – Beleuchtung"]
   LP{"Welche LED-Panels leuchten?"}
   FC{"Leuchtet das vordere Panel in WBK-Grün?"}
@@ -64,7 +67,9 @@ subgraph S2["3 – Monitor & PC"]
   LOG["Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabri…"]
 end
 subgraph S3["4 – Docker & MES"]
-  DW{"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die…"}
+  DWA{"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die…"}
+  DWN{"Nach dem Anmelden bis zu 30 Sekunden warten. Startet Docke…"}
+  DWU{"Nach dem Anmelden bis zu 30 Sekunden warten. Was passiert …"}
   DWY["Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft."]
   DA["Docker als Administrator starten, die Abfrage mit Ja bestä…"]
   R1["Einen Pol-Topf an den RFID-Reader halten."]
@@ -174,8 +179,16 @@ TO3 --> TO4
 TO4 -->|Ja| LOG
 TO4 -->|Nein| TM9
 LOG --> DW
-DW -->|Ja| DWY
-DW -->|Nein| DA
+DW -.->|"Station: mit Abfrage"| DWA
+DW -.->|"Station: ohne Abfrage"| DWN
+DW -.->|"Station: unbekannt"| DWU
+DWA -->|Ja| DWY
+DWA -->|Nein| DA
+DWN -->|Ja| R1
+DWN -->|Nein| DA
+DWU -->|"Eine Abfrage erscheint"| DWY
+DWU -->|"Docker startet ohne Abfrage"| R1
+DWU -->|"Nichts passiert"| DA
 DWY --> R1
 DA --> R1
 R1 --> R2
