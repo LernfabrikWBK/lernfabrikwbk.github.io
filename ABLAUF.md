@@ -3,18 +3,23 @@
 Automatisch aus `index.html` (Block `FLOW`) erzeugt. Grün = einsatzbereit, rot = Techniker, orange = Dorian.
 Gestrichelte Pfeile: „Nein (2. Mal)" = dieselbe Frage zum zweiten Mal mit Nein beantwortet; „Nein, Strom schon geprüft" = der Abschnitt Stromversorgung wurde in diesem Durchlauf schon durchlaufen.
 
+Zu Beginn wird das Ziel gewählt (Netz- oder Batteriebetrieb); die Stromversorgung prüft danach automatisch den passenden Betrieb.
+
 Die Docker-Abfrage nach dem Anmelden hängt von der Station ab (`config.js`: `DOCKER_MIT_ABFRAGE` / `DOCKER_OHNE_ABFRAGE`).
 
 ## Geprüft
 
-- Alle 77 Schritte erreichbar, keine Sackgassen.
+- Alle 79 Schritte erreichbar, keine Sackgassen.
 - Alle 12 Ergebnisse erreichbar.
-- Keine Endlosschleifen: über 39 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
+- Keine Endlosschleifen: über 56 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
 
 ```mermaid
 flowchart TD
 DW{{"Docker-Verhalten der Station"}}
+GOAL{"Ziel: Netz- oder Batteriebetrieb?"}
+BM{{"Ziel vom Anfang"}}
 subgraph S0["1 – Beleuchtung"]
+  GOAL{"Wofür soll die Station laufen?"}
   LP{"Welche LED-Panels leuchten?"}
   FC{"Leuchtet das vordere Panel in WBK-Grün?"}
   FC1["Farbe mit der Fernbedienung auf WBK-Grün einstellen."]
@@ -34,12 +39,12 @@ subgraph S1["2 – Stromversorgung"]
   K0["Netzkabel hinten an der Station und in der Steckdose einst…"]
   PT0{"Kam nach dem Einstecken ein sich wiederholender Piepton?"}
   H2{"Grünen Knopf nochmal drücken. Leuchtet die Kontroll-LED je…"}
-  BM{"Soll die Station am Netz oder mit Batterie laufen?"}
   NK{"Steckt das Netzkabel hinten an der Station und in der Stec…"}
   K["Netzkabel hinten an der Station und in der Steckdose einst…"]
   PT{"Kam nach dem Einstecken ein sich wiederholender Piepton?"}
   NA{"Anzeige hinter der vorderen Tür: Bewegen sich 2 Pfeile (li…"}
   BA{"Was zeigt die Anzeige hinter der vorderen Tür?"}
+  BU["Für den Batteriebetrieb das Netzkabel hinten an der Statio…"]
   BV{"Zeigt die Anzeige eine Batteriespannung über 24 V?"}
   BL["Hinweis: Die Batterie ist zu schwach."]
 end
@@ -72,16 +77,16 @@ subgraph S3["4 – Docker & MES"]
   DWU{"Nach dem Anmelden bis zu 30 Sekunden warten. Was passiert …"}
   DWY["Abfrage mit Ja bestätigen und kurz warten, bis Docker läuft."]
   DA["Docker als Administrator starten, die Abfrage mit Ja bestä…"]
-  R1["Einen Pol-Topf an den RFID-Reader halten."]
+  R1["Einen Pol-Topf in die Aufnahme am RFID-Reader einlegen."]
   R2{"Was leuchtet am RFID-Reader?"}
   SL{"Leuchtet das Smart-Light oben grün?"}
   DK1{"Am PC: Ist Docker automatisch gestartet?"}
   DK2["Docker als Administrator ausführen, die Admin-Abfrage best…"]
-  TA{"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün un…"}
+  TA{"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün un…"}
   DK3["In Docker auf den dunkelblauen Start-Pfeil drücken und war…"]
-  TB{"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün un…"}
+  TB{"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün un…"}
   RS["PC einmal neu starten und danach erneut anmelden."]
-  TC{"Pol-Topf erneut anhalten: Leuchtet der RFID-Reader grün un…"}
+  TC{"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün un…"}
   IO{"Leuchtet der IO-Link-Master?"}
   KA{"Sind alle Kabel am IO-Link-Master eingesteckt?"}
   KA1["Kabel einstecken. Wenn die Position unklar ist, mit einer …"]
@@ -98,6 +103,8 @@ DOR3(["Dorian melden: Smart-Light wird trotz laufendem Docker nicht grün"])
 DOR4(["Dorian melden: IO-Link-Kabel: richtige Position unklar"])
 DOR1(["Dorian melden: Docker läuft auch nach PC-Neustart nicht"])
 DOR2(["Dorian melden: RFID reagiert trotz gesteckter Kabel nicht"])
+GOAL -->|"Netzbetrieb (Führung / Schulung im Layout)"| LP
+GOAL -->|"Batteriebetrieb (Stationen frei verteilt)"| LP
 LP -->|"Beide"| FC
 LP -->|"Nur vorne, oben aus"| TM1
 LP -->|"Nur oben, vorne aus"| FB
@@ -126,8 +133,8 @@ PT0 -->|Ja| H2
 PT0 -->|Nein| H2
 H2 -->|Ja| NA
 H2 -->|Nein| TM3
-BM -->|"Netzbetrieb"| NK
-BM -->|"Batteriebetrieb"| BA
+BM -.->|"Station: unbekannt"| NK
+BM -.->|"Station: unbekannt"| BA
 NK -->|Ja| NA
 NK -->|Nein| K
 K --> PT
@@ -136,8 +143,9 @@ PT -->|Nein| NA
 NA -->|Ja| C
 NA -->|Nein| TM4
 BA -->|"1 Pfeil (Mitte → rechts)"| BV
-BA -->|"2 Pfeile"| C
+BA -->|"2 Pfeile (Kabel steckt noch)"| BU
 BA -->|"Keine Pfeile / Anzeige aus"| TM3
+BU --> BV
 BV -->|Ja| C
 BV -->|Nein| BL
 BL --> K
