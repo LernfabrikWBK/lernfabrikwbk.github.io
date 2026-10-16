@@ -5,13 +5,15 @@ Gestrichelte Pfeile: „Nein (2. Mal)" = dieselbe Frage zum zweiten Mal mit Nein
 
 Zu Beginn wird das Ziel gewählt (Netz- oder Batteriebetrieb); die Stromversorgung prüft danach automatisch den passenden Betrieb.
 
+Nach Strom, PC und Docker wird gefragt, wofür das MES genutzt wird: Besuchstermin (MES im Vollbild) oder eine der fünf Schulungen. Die Schulungs-Abläufe sind als Platzhalter angelegt und werden noch ausgearbeitet.
+
 Die Docker-Abfrage nach dem Anmelden hängt von der Station ab (`config.js`: `DOCKER_MIT_ABFRAGE` / `DOCKER_OHNE_ABFRAGE`).
 
 ## Geprüft
 
-- Alle 79 Schritte erreichbar, keine Sackgassen.
+- Alle 87 Schritte erreichbar, keine Sackgassen.
 - Alle 12 Ergebnisse erreichbar.
-- Keine Endlosschleifen: über 56 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
+- Keine Endlosschleifen: über 180 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
 
 ```mermaid
 flowchart TD
@@ -203,7 +205,7 @@ R1 --> R2
 R2 -->|"Grün und Orange"| SL
 R2 -->|"Nur Grün"| DK1
 R2 -->|"Gar nichts"| IO
-SL -->|Ja| MES
+SL -->|Ja| MO
 SL -->|Nein| DK1
 SL -.->|"Nein (2. Mal)"| DOR3
 DK1 -->|Ja| DK3
@@ -223,6 +225,19 @@ KA -->|Ja| DOR2
 KA -->|Nein| KA1
 KA -.->|"Nein (2. Mal)"| DOR4
 KA1 --> R1
+MO --> USE
+USE -->|"Besuchstermin / Führung"| VB
+USE -->|"Schulung: Lean & Industrie 4.0"| T_LEAN
+USE -->|"Schulung: Six Sigma"| T_SIX
+USE -->|"Schulung: Digitaler Zwilling"| T_DZ
+USE -->|"Schulung: Kreislaufproduktion"| T_KP
+USE -->|"Schulung: Agile Globale Produktion"| T_AGP
+VB --> MES
+T_LEAN --> MES
+T_SIX --> MES
+T_DZ --> MES
+T_KP --> MES
+T_AGP --> MES
 classDef ok fill:#e1f1e0,stroke:#2f7d32,color:#173404
 classDef tech fill:#f8e0dc,stroke:#c0392b,color:#501313
 classDef dorian fill:#fbecd3,stroke:#b26a00,color:#412402

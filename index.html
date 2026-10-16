@@ -61,7 +61,7 @@ select{font:500 18px var(--f-body);padding:12px;border-radius:10px;border:1px so
 .answers.list{grid-template-columns:1fr}
 .link{background:none;border:0;color:var(--muted);font:500 15px var(--f-body);cursor:pointer;padding:6px 0;text-decoration:underline;text-underline-offset:3px}
 .row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
-.sections{display:grid;grid-template-columns:repeat(4,1fr);gap:4px}
+.sections{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
 .sections span{height:6px;border-radius:3px;background:var(--line)}
 .sections span.on{background:var(--accent)}
 .sections span.done{background:var(--accent);opacity:.45}
@@ -163,7 +163,7 @@ td.num{font-variant-numeric:tabular-nums;font-family:var(--f-mono);font-size:13p
    reason  = bei Eskalation: was ungelöst blieb
    noIfVisited = [Knoten, Ziel]: "Nein" führt zum Ziel, wenn Knoten in diesem Durchlauf schon besucht wurde (z. B. Strom schon geprüft)
    noAgain = wird die Frage im selben Durchlauf ein ZWEITES Mal mit "Nein" beantwortet, geht es hierhin (verhindert Endlosschleifen) */
-const SECTIONS=["Beleuchtung","Stromversorgung","Monitor & PC","Docker & MES"];
+const SECTIONS=["Beleuchtung","Stromversorgung","Monitor & PC","Docker & MES","MES-Nutzung"];
 const FLOW={
  GOAL:{s:0,sec:"Ziel festlegen",type:"q",text:"Wofür soll die Station laufen?",hint:"Netzbetrieb: für Führungen oder Schulungen, bei denen die Station fest an ihrem Platz im Layout steht. Batteriebetrieb: für Schulungen, bei denen die Stationen frei im Raum verteilt werden.",opts:[
    {l:"Netzbetrieb (Führung / Schulung im Layout)",to:"LP"},
@@ -241,7 +241,7 @@ const FLOW={
    {l:"Grün und Orange",to:"SL",k:"yes"},
    {l:"Nur Grün",to:"DK1"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
- SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MES",no:"DK1",noAgain:"DOR3",confirm:true},
+ SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MO",no:"DK1",noAgain:"DOR3",confirm:true},
  DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
  DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
  TA:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
@@ -253,7 +253,21 @@ const FLOW={
  KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",noAgain:"DOR4",obsNo:"IO-Link-Kabel nicht gesteckt"},
  KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
- MES:{imgs:[{f:"browser-verknuepfung",c:"1. Firefox in der Taskleiste öffnen"},{f:"adresse-mes",c:"2. MES-Adresse auswählen"},{f:"mes-rollenauswahl",c:"3. Rolle auswählen"},{f:"mes-stationszuordnung",c:"4. Arbeitsstation zuordnen"}],type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Docker läuft. Firefox öffnen, die MES-Adresse 172.22.192.101:4200 aufrufen, die Rolle wählen und die Arbeitsstation zuordnen. Dann ist das MES vollständig nutzbar."},
+ MO:{imgs:[{f:"browser-verknuepfung",c:"1. Firefox in der Taskleiste öffnen"},{f:"adresse-mes",c:"2. MES-Adresse auswählen"}],s:4,type:"a",text:"MES öffnen: Firefox starten und die MES-Adresse 172.22.192.101:4200 aufrufen.",to:"USE"},
+ USE:{s:4,type:"q",text:"Wofür soll das MES genutzt werden?",opts:[
+   {l:"Besuchstermin / Führung",to:"VB"},
+   {l:"Schulung: Lean & Industrie 4.0",to:"T_LEAN"},
+   {l:"Schulung: Six Sigma",to:"T_SIX"},
+   {l:"Schulung: Digitaler Zwilling",to:"T_DZ"},
+   {l:"Schulung: Kreislaufproduktion",to:"T_KP"},
+   {l:"Schulung: Agile Globale Produktion",to:"T_AGP"}]},
+ VB:{imgs:[{f:"adresse-mes",c:"MES geöffnet"}],s:4,type:"a",text:"MES in den Vollbildmodus bringen.",hint:"Im Firefox F11 drücken. Ohne Tastatur: oben rechts das Menü (☰) öffnen und auf das Vollbild-Symbol (⤢) tippen.",to:"MES"},
+ T_LEAN:{s:4,type:"n",text:"Schulung Lean & Industrie 4.0: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_SIX:{s:4,type:"n",text:"Schulung Six Sigma: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_DZ:{s:4,type:"n",text:"Schulung Digitaler Zwilling: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_KP:{s:4,type:"n",text:"Schulung Kreislaufproduktion: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_AGP:{s:4,type:"n",text:"Schulung Agile Globale Produktion: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ MES:{type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Alles läuft: Docker, RFID-Reader und MES sind bereit."},
  TM3:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station bekommt keinen Strom",text:"Die Station bekommt keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM4:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station lädt nicht am Netz",text:"Die Station lädt nicht am Netz. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM5:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Monitor geht nicht an",text:"Der Monitor geht nicht an, obwohl Strom und Kabel geprüft sind. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
@@ -361,7 +375,7 @@ document.addEventListener("click",e=>{const z=e.target.closest(".zoom");
   if(e.target.closest("#lb")) document.getElementById("lb").hidden=true;});
 document.addEventListener("keydown",e=>{if(e.key==="Escape")document.getElementById("lb").hidden=true});
 
-function sectionBar(s){return `<div class="sections" aria-label="Abschnitt ${s+1} von 4">${SECTIONS.map((_,i)=>`<span class="${i<s?"done":i===s?"on":""}"></span>`).join("")}</div>`}
+function sectionBar(s){return `<div class="sections" aria-label="Abschnitt ${s+1} von ${SECTIONS.length}">${SECTIONS.map((_,i)=>`<span class="${i<s?"done":i===s?"on":""}"></span>`).join("")}</div>`}
 
 function render(){
   if(state.view!=="check")return;
@@ -376,7 +390,7 @@ function render(){
   const last=state.history[state.history.length-1], lf=last&&FLOW[last.id];
   const jump=lf&&lf.noHint&&last.answer==="Nein"&&state.node===lf.no?`<p class="jump">${esc(lf.noHint)}</p>`:"";
   $view.innerHTML=`${jump}<section class="card step">
-    <div class="row"><span class="eyebrow">${state.station} · ${n.sec?esc(n.sec):`${n.s+1}/4 ${SECTIONS[n.s]}`}</span>${kindTag}</div>
+    <div class="row"><span class="eyebrow">${state.station} · ${n.sec?esc(n.sec):`${n.s+1}/${SECTIONS.length} ${SECTIONS[n.s]}`}</span>${kindTag}</div>
     ${sectionBar(n.s)}
     ${photo(n)}
     <p class="q">${esc(n.text)}</p>
@@ -395,6 +409,7 @@ function render(){
 
 /* Automatische Weichen (ohne Frage), z. B. Docker-Verhalten pro Station */
 function dockerMode(st){const c=CFG;if((c.DOCKER_MIT_ABFRAGE||[]).includes(st))return"admin";if((c.DOCKER_OHNE_ABFRAGE||[]).includes(st))return"auto";return"unknown"}
+function usageOf(hist){const h=hist.find(x=>x.id==="USE");return h?h.answer:""}
 function goalMode(hist){const h=hist.find(x=>x.id==="GOAL");return h&&h.answer.startsWith("Batterie")?"batterie":"netz"}
 function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):n.by==="goal"?goalMode(state.history):"unknown"];n=FLOW[id]}return id}
 function go(to,answer,x){
@@ -487,6 +502,8 @@ function renderEnd(n){
     <p class="hint" style="color:var(--ink)">${esc(n.text)}</p>
     ${photo(n)}
     ${help?`<p class="hint" style="color:var(--ink)">Zeig ${n.kind==="dorian"?"Dorian":"dem Techniker"} das Prüfprotokoll unten oder schick es ihm. Dann muss niemand die Schritte wiederholen.</p>`:""}
+    ${n.kind==="ok"&&usageOf(state.history)?`<p class="hint" style="color:var(--ink)"><b>Genutzt für:</b> ${esc(usageOf(state.history))}</p>`:""}
+    ${n.kind==="ok"&&goalMode(state.history)==="batterie"?`<div class="jump"><b>Batteriebetrieb:</b> Nach jeder Nutzung (Spielrunde) die Station wieder ans Netz bringen und laden: Netzkabel hinten an der Station und in der Steckdose einstecken.</div>${photo({imgs:[{f:"stecker-station",c:"Kabel hinten in die Station"},{f:"stecker-steckdose",c:"Anderes Ende in die Steckdose"}]})}`:""}
     ${tech&&n.kind==="ok"?`<p class="hint" style="color:var(--ink)"><b>Offen:</b> Bitte trotzdem einen Techniker wegen der Beleuchtung informieren.</p>`:""}
     ${findings.length?`<div><span class="eyebrow">Gefundene Ursachen</span><div class="chips" style="margin-top:6px">${findings.map(f=>`<span class="chip">${esc(f)}</span>`).join("")}</div></div>`:""}
     <span class="save">${savedTxt}</span>
@@ -531,6 +548,7 @@ async function renderStats(){
   <section class="card"><h2>Häufigste Ursachen</h2>${bars(findings,total)}
     <p class="note">Gezählt wird nur, was jemand direkt gesehen hat oder was nachweislich geholfen hat. Prozent = Anteil aller Prüfungen.</p></section>
   <section class="card"><h2>Ungelöst, Hilfe geholt</h2>${bars(unresolved,total,k=>k.startsWith("Docker")||k.startsWith("RFID")?"warn":"bad")}</section>
+  <section class="card"><h2>Wofür genutzt</h2>${bars(count(runs.map(r=>(r.path||[]).find(x=>x.startsWith("USE:"))).filter(Boolean).map(x=>x.slice(4).replace("Schulung: ",""))),total)}</section>
   <section class="card"><h2>Wie endeten die Prüfungen?</h2>${bars(outcomes,total,k=>k.startsWith("Alles")||k.startsWith("Selbst")?"ok":k.startsWith("Dorian")?"warn":"bad")}</section>
   <section class="card"><h2>Nach Station</h2>${stations.length?`<div class="tablewrap"><table><thead><tr><th>Station</th><th>Prüf.</th><th>Mit Hilfe</th><th>Häufigste Ursache</th></tr></thead><tbody>${stations.map(x=>`<tr><td>${x.s}</td><td class="num">${x.n}</td><td class="num">${x.bad}</td><td>${esc(x.top)}</td></tr>`).join("")}</tbody></table></div>`:`<p class="empty">Noch keine Daten</p>`}</section>
   <section class="card"><h2>Letzte Prüfungen</h2>${runs.length?`<div class="bars">${runs.slice(0,20).map(r=>`<details class="proto"><summary><span><span class="dot" style="background:${col[r.kind]}"></span>${esc(fmt(r.ts))} · ${esc(r.station)} · ${KIND_LABEL[r.kind]}${r.unresolved?` · ${esc(r.unresolved)}`:""}</span></summary>${protoHTML(r)}</details>`).join("")}</div>`:`<p class="empty">Sobald jemand eine Prüfung abschließt, erscheint sie hier.</p>`}
