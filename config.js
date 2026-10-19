@@ -25,5 +25,15 @@ window.CONFIG = {
   // 4) Docker nach dem Anmelden: Kommt eine Abfrage (Admin/Bestätigung) oder startet Docker still von selbst?
   //    Stationen, die in keiner Liste stehen, bekommen eine Auswahl ("Abfrage kam" / "startete ohne Abfrage" / "nichts passiert").
   DOCKER_MIT_ABFRAGE:  ["Pressen 1", "Pressen 2", "Fügen 1"],
-  DOCKER_OHNE_ABFRAGE: ["Pressen 3", "Pressen 4", "Fügen 2", "Schrauben 1", "Schrauben 2"]
+  DOCKER_OHNE_ABFRAGE: ["Pressen 3", "Pressen 4", "Fügen 2", "Schrauben 1", "Schrauben 2"],
+
+  // 5) MES
+  MES_ADRESSE: "http://172.22.192.101:4200",
+  PASSWORT: "LernfabrikAdmin",          // Passwort zum Entsperren der Stations-PCs
+  //    Name der Arbeitsstation im MES (Werker-Auswahl). Nicht eingetragene Stationen behalten ihren Namen.
+  MES_NAMEN: {
+    "Pressen 1": "Press1", "Pressen 2": "Press2", "Pressen 3": "Press3", "Pressen 4": "Press4",
+    "Schrauben 1": "Screwer1", "Schrauben 2": "Screwer2",
+    "Fügen 1": "Joiner1", "Fügen 2": "Joiner2"
+  }
 };

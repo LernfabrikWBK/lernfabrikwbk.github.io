@@ -37,11 +37,12 @@
   const stations=(window.CONFIG&&window.CONFIG.STATIONS)||["Station 1"];
   const base=location.href.replace(/qr\.html.*$/,"");
   const grid=document.getElementById("grid");
-  stations.forEach((name,i)=>{
+  const all=[...stations.map(n=>({name:n})),{name:"MES vorbereiten",mes:true}];
+  all.forEach(({name,mes},i)=>{
     const slug=name.toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"");
-    const url=base+"?s="+slug;
+    const url=mes?base+"?m=mes":base+"?s="+slug;
     const el=document.createElement("div");el.className="label";
-    el.innerHTML=`<h2></h2><div class="qr"></div><p>Station funktioniert nicht?<br>Code scannen, Schritt für Schritt prüfen.</p><div class="url"></div>`;
+    el.innerHTML=`<h2></h2><div class="qr"></div><p>${mes?"Schulung, Demo oder Rollen einrichten.<br>Für wenn die Stationen schon laufen.":"Station funktioniert nicht?<br>Code scannen, Schritt für Schritt prüfen."}</p><div class="url"></div>`;
     el.querySelector("h2").textContent=name;
     el.querySelector(".url").textContent=url;
     grid.appendChild(el);

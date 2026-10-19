@@ -97,9 +97,39 @@ def pdf(names, path):
     c.save()
 
 
+MES_URL = "https://lernfabrikwbk.github.io/?m=mes"
+
+
+def mes_card(path):
+    """Eigener QR-Code für den MES-Guide (Stationen laufen schon)."""
+    W, H = 1000, 1250
+    im = Image.new("RGB", (W, H), "white")
+    d = ImageDraw.Draw(im)
+    d.rounded_rectangle((10, 10, W - 10, H - 10), 40, outline="#009682", width=10)
+    d.text((W / 2, 110), "MES vorbereiten", fill="black", font=ImageFont.truetype(FONT_B, 64), anchor="mm")
+    im.paste(qr_image(MES_URL).resize((800, 800), Image.NEAREST), (100, 190))
+    fr = ImageFont.truetype(FONT_R, 34)
+    d.text((W / 2, 1040), "Schulung, Demo oder Rollen einrichten.", fill="#18201b", font=fr, anchor="mm")
+    d.text((W / 2, 1090), "Für wenn die Stationen schon laufen.", fill="#18201b", font=fr, anchor="mm")
+    d.text((W / 2, 1170), MES_URL.replace("https://", ""), fill="#5d6a61", font=ImageFont.truetype(FONT_R, 26), anchor="mm")
+    im.save(path)
+
+
+def mes_pdf(path):
+    c = canvas.Canvas(path, pagesize=A4)
+    c.setTitle("QR-Code MES vorbereiten")
+    pw, ph = A4
+    img = os.path.join(HERE, "qr-mes-vorbereiten.png")
+    w = 120 * mm
+    c.drawImage(img, (pw - w) / 2, (ph - w * 1.25) / 2, w, w * 1.25)
+    c.save()
+
+
 if __name__ == "__main__":
     names = stations()
     for n in names:
         png_card(n, BASE + slug(n), os.path.join(HERE, f"qr-{slug(n)}.png"))
     pdf(names, os.path.join(HERE, "QR-Codes_Stationen.pdf"))
+    mes_card(os.path.join(HERE, "qr-mes-vorbereiten.png"))
+    mes_pdf(os.path.join(HERE, "QR-Code_MES-vorbereiten.pdf"))
     print(f"{len(names)} QR-Codes erzeugt in {HERE}")

@@ -11,6 +11,7 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 | `qr.html` | Erzeugt druckfertige QR-Codes für alle Stationen (im Browser) |
 | `qr-codes/` | Fertige QR-Codes: `QR-Codes_Stationen.pdf` zum Drucken (A4, 6 pro Seite), ein PNG pro Station und `erzeugen.py` zum Neu-Erstellen |
 | `supabase.sql` | Legt die Datenbank-Tabelle an (einmalig in Supabase ausführen) |
+| `docs/Anleitung_MES.pdf` | MES-Benutzerdokumentation (Grundlage für den MES-Guide) |
 | `images/` | Fotos für die einzelnen Schritte (Namen siehe `images/LIESMICH.md`) |
 
 ## Aufbau: Werkstatt und Live-Seite
@@ -24,6 +25,7 @@ Schritt-für-Schritt-Prüfung einer Lernfabrik-Station: QR-Code an der Station s
 - Tool: `https://lernfabrikwbk.github.io/`
 - Direkt eine Station: `https://lernfabrikwbk.github.io/?s=pressen-3` (Stationsname klein, Umlaute als ae/oe/ue, Leerzeichen als `-`)
 - Auswertung: `https://lernfabrikwbk.github.io/#auswertung`
+- MES-Guide (Stationen laufen schon): `https://lernfabrikwbk.github.io/?m=mes`
 - QR-Codes drucken: `https://lernfabrikwbk.github.io/qr.html`
 
 ## Wie die Auswertung zählt

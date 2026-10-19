@@ -9,15 +9,24 @@ Nach Strom, PC und Docker wird gefragt, wofür das MES genutzt wird: Besuchsterm
 
 Die Docker-Abfrage nach dem Anmelden hängt von der Station ab (`config.js`: `DOCKER_MIT_ABFRAGE` / `DOCKER_OHNE_ABFRAGE`).
 
+## MES-Guide
+
+Eigener Einstieg über `?m=mes` (QR-Code „MES vorbereiten"), wenn die Stationen schon laufen. Inhalt nach `docs/Anleitung_MES.pdf`:
+Schulung allgemein (Training, Spielrunde, Stationen, Werker, RFID-Test), Demo/Besuch (Demo-Modus, Vollbild), Werker an der Station, Kommissionierer, Kunde.
+Aus dem Stations-Check führen die Schulungen in denselben Ablauf und danach zum Platzhalter der jeweiligen Schulung.
+
 ## Geprüft
 
-- Alle 87 Schritte erreichbar, keine Sackgassen.
-- Alle 12 Ergebnisse erreichbar.
-- Keine Endlosschleifen: über 180 Millionen mögliche Wege, jeder endet bei einem Ergebnis.
+- Alle 125 Schritte erreichbar, keine Sackgassen.
+- Alle 18 Ergebnisse erreichbar.
+- Keine Endlosschleifen (Zustandsanalyse über alle 3.747 möglichen Zustände).
 
 ```mermaid
 flowchart TD
 DW{{"Docker-Verhalten der Station"}}
+MG{"MES-Guide: Was vorbereiten?"}
+GSW{{"Demo oder Schulung"}}
+GTR{{"Gewählte Schulung"}}
 GOAL{"Ziel: Netz- oder Batteriebetrieb?"}
 BM{{"Ziel vom Anfang"}}
 subgraph S0["1 – Beleuchtung"]
@@ -71,7 +80,7 @@ subgraph S2["3 – Monitor & PC"]
   TO2{"Nochmal nach oben wischen. Reagiert der Touch jetzt?"}
   TO3["Kabel hinten am Monitor abziehen und wieder fest einstecken."]
   TO4{"Nochmal nach oben wischen. Reagiert der Touch jetzt?"}
-  LOG["Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabri…"]
+  LOG["Falls nötig: mit dem Benutzer Lernfabrik und dem Passwort …"]
 end
 subgraph S3["4 – Docker & MES"]
   DWA{"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die…"}
@@ -93,6 +102,52 @@ subgraph S3["4 – Docker & MES"]
   KA{"Sind alle Kabel am IO-Link-Master eingesteckt?"}
   KA1["Kabel einstecken. Wenn die Position unklar ist, mit einer …"]
 end
+subgraph S4["5 – MES-Nutzung / MES-Guide"]
+  MO["MES öffnen: Firefox starten und die MES-Adresse 172.22.192…"]
+  USE{"Wofür soll das MES genutzt werden?"}
+  VB["MES in den Vollbildmodus bringen."]
+  T_LEAN["Hinweis: Schulung Lean & Industrie 4.0: spezielle Vorbereitung"]
+  T_SIX["Hinweis: Schulung Six Sigma: spezielle Vorbereitung"]
+  T_DZ["Hinweis: Schulung Digitaler Zwilling: spezielle Vorbereitung"]
+  T_KP["Hinweis: Schulung Kreislaufproduktion: spezielle Vorbereitung"]
+  T_AGP["Hinweis: Schulung Agile Globale Produktion: spezielle Vorbereitung"]
+  MG{"Was willst du vorbereiten?"}
+  MG_SL["An einem beliebigen Bildschirm entsperren (Passwort: {PW})…"]
+  G2{"Läuft bereits ein Training?"}
+  G3A["Das laufende Training über „Öffnen“ aufrufen."]
+  G3B["Einen Namen eingeben und ein neues Training erstellen."]
+  G3C["Rechts in der Liste der beendeten Trainings beim gewünscht…"]
+  G4{"Gibt es für diese Schulung ein Preset?"}
+  G5P["Unter „Schnellstart aus Preset“ das passende Preset wählen."]
+  G5L["Produktionslinie wählen. Sie legt fest, welche Stationen i…"]
+  G5T{"Sollen Stationen weggelassen oder parallel geschaltet werd…"}
+  G5TI["Bei „Stationstopologie“ die individuelle Konfiguration wäh…"]
+  G5O["OPP wählen: „OPP beim Picker“ oder „OPP an einer Station“ …"]
+  G5K["Kommissioniermodus festlegen: vordefiniert oder individuel…"]
+  G6["„Starte Spielrunde“ antippen."]
+  G7["Alle Stationen der gewählten Linie mit dem grünen Knopf ei…"]
+  G8["An jedem Stationsbildschirm: entsperren (Passwort: {PW}), …"]
+  G9{"An jeder Station ein Polgehäuse an den RFID-Scanner halten…"}
+  G9N["Hinweis: An der betroffenen Station den QR-Code scannen und den Sta…"]
+  D1["Spielrunde einstellen (Preset oder Produktionslinie), den …"]
+  D2["Beim Spielleiter links die Live-Übersicht oder die KPIs öf…"]
+  VB2["MES in den Vollbildmodus bringen."]
+  W1["Bildschirm an {STATION} entsperren (Passwort: {PW})."]
+  W2["Firefox öffnen und {MES}/operator aufrufen."]
+  W3["Die Arbeitsstation „{MESNAME}“ auswählen."]
+  W4["Hinweis: So arbeitet der Werker"]
+  KO1["Am Kommissionierplatz Firefox öffnen und {MES}/picker/pick…"]
+  KO2["Scannerhandschuh einschalten: den QR-Code auf dem orangen …"]
+  KO3["Hinweis: So wird kommissioniert"]
+  KU1["Firefox öffnen und {MES}/customer/order-catalog aufrufen."]
+  KU2["Hinweis: So bestellt der Kunde"]
+end
+MG_OK(["Schulung ist vorbereitet"])
+MG_DEMO(["Demo läuft"])
+MG_W(["Werker-Platz bereit"])
+MG_K(["Kommissionierplatz bereit"])
+MG_KU(["Kunden-Platz bereit"])
+MG_RFID(["Station prüfen: RFID-Statusanzeige bei der Schulungsvorbereitung nicht grün"])
 MES(["Station voll einsatzbereit"])
 TM3(["Techniker rufen: Station bekommt keinen Strom"])
 TM4(["Techniker rufen: Station lädt nicht am Netz"])
@@ -227,22 +282,69 @@ KA -.->|"Nein (2. Mal)"| DOR4
 KA1 --> R1
 MO --> USE
 USE -->|"Besuchstermin / Führung"| VB
-USE -->|"Schulung: Lean & Industrie 4.0"| T_LEAN
-USE -->|"Schulung: Six Sigma"| T_SIX
-USE -->|"Schulung: Digitaler Zwilling"| T_DZ
-USE -->|"Schulung: Kreislaufproduktion"| T_KP
-USE -->|"Schulung: Agile Globale Produktion"| T_AGP
+USE -->|"Schulung: Lean & Industrie 4.0"| MG_SL
+USE -->|"Schulung: Six Sigma"| MG_SL
+USE -->|"Schulung: Digitaler Zwilling"| MG_SL
+USE -->|"Schulung: Kreislaufproduktion"| MG_SL
+USE -->|"Schulung: Agile Globale Produktion"| MG_SL
 VB --> MES
 T_LEAN --> MES
 T_SIX --> MES
 T_DZ --> MES
 T_KP --> MES
 T_AGP --> MES
+MG -->|"Schulung vorbereiten (allgemein)"| MG_SL
+MG -->|"Demo / Besuchstermin"| MG_SL
+MG -->|"Werker an dieser Station"| W1
+MG -->|"Kommissionierer"| KO1
+MG -->|"Kunde"| KU1
+MG_SL --> G2
+G2 -->|"Ja, ein Training läuft"| G3A
+G2 -->|"Nein, neues Training anlegen"| G3B
+G2 -->|"Altes Training fortsetzen"| G3C
+G3A --> GSW
+G3B --> GSW
+G3C --> GSW
+GSW -.->|"Station: unbekannt"| D1
+GSW -.->|"Station: unbekannt"| G4
+G4 -->|Ja| G5P
+G4 -->|Nein| G5L
+G5P --> G6
+G5L --> G5T
+G5T -->|Ja| G5TI
+G5T -->|Nein| G5O
+G5TI --> G5O
+G5O --> G5K
+G5K --> G6
+G6 --> G7
+G7 --> G8
+G8 --> G9
+G9 -->|Ja| GTR
+G9 -->|Nein| G9N
+G9N --> MG_RFID
+GTR -.->|"Station: unbekannt"| T_LEAN
+GTR -.->|"Station: unbekannt"| T_SIX
+GTR -.->|"Station: unbekannt"| T_DZ
+GTR -.->|"Station: unbekannt"| T_KP
+GTR -.->|"Station: unbekannt"| T_AGP
+GTR -.->|"Station: unbekannt"| MG_OK
+D1 --> D2
+D2 --> VB2
+VB2 --> MG_DEMO
+W1 --> W2
+W2 --> W3
+W3 --> W4
+W4 --> MG_W
+KO1 --> KO2
+KO2 --> KO3
+KO3 --> MG_K
+KU1 --> KU2
+KU2 --> MG_KU
 classDef ok fill:#e1f1e0,stroke:#2f7d32,color:#173404
 classDef tech fill:#f8e0dc,stroke:#c0392b,color:#501313
 classDef dorian fill:#fbecd3,stroke:#b26a00,color:#412402
-class MES ok
-class TM3,TM4,TM5,TM6,TM7,TM8,TM9 tech
+class MG_OK,MG_DEMO,MG_W,MG_K,MG_KU,MES ok
+class MG_RFID,TM3,TM4,TM5,TM6,TM7,TM8,TM9 tech
 class DOR3,DOR4,DOR1,DOR2 dorian
 
 ```

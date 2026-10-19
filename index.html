@@ -225,7 +225,7 @@ const FLOW={
  TO2:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TO3",clearOnNo:true,confirm:true},
  TO3:{s:2,type:"a",text:"Kabel hinten am Monitor abziehen und wieder fest einstecken.",to:"TO4",fix:"Touch: Monitor-Kabel neu gesteckt"},
  TO4:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TM9",confirm:true},
- LOG:{imgs:[{f:"anmelden-kennwort",c:"Benutzer Lernfabrik, Kennwort eingeben"}],s:2,type:"a",text:"Falls nötig: mit dem Benutzer Lernfabrik und dem Lernfabrik-Passwort anmelden.",to:"DW"},
+ LOG:{imgs:[{f:"anmelden-kennwort",c:"Benutzer Lernfabrik, Passwort {PW}"}],s:2,type:"a",text:"Falls nötig: mit dem Benutzer Lernfabrik und dem Passwort {PW} anmelden.",to:"DW"},
 
  DW:{type:"switch",by:"docker",cases:{admin:"DWA",auto:"DWN",unknown:"DWU"}},
  DWA:{imgs:[{f:"docker-bestaetigen",c:"Diese Abfrage sollte von selbst erscheinen",os:"windows"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die Docker-Abfrage von selbst?",yes:"DWY",no:"DA",obsNo:"Docker startete nicht automatisch"},
@@ -256,17 +256,63 @@ const FLOW={
  MO:{imgs:[{f:"browser-verknuepfung",c:"1. Firefox in der Taskleiste öffnen"},{f:"adresse-mes",c:"2. MES-Adresse auswählen"}],s:4,type:"a",text:"MES öffnen: Firefox starten und die MES-Adresse 172.22.192.101:4200 aufrufen.",to:"USE"},
  USE:{s:4,type:"q",text:"Wofür soll das MES genutzt werden?",opts:[
    {l:"Besuchstermin / Führung",to:"VB"},
-   {l:"Schulung: Lean & Industrie 4.0",to:"T_LEAN"},
-   {l:"Schulung: Six Sigma",to:"T_SIX"},
-   {l:"Schulung: Digitaler Zwilling",to:"T_DZ"},
-   {l:"Schulung: Kreislaufproduktion",to:"T_KP"},
-   {l:"Schulung: Agile Globale Produktion",to:"T_AGP"}]},
+   {l:"Schulung: Lean & Industrie 4.0",to:"MG_SL",tr:"T_LEAN"},
+   {l:"Schulung: Six Sigma",to:"MG_SL",tr:"T_SIX"},
+   {l:"Schulung: Digitaler Zwilling",to:"MG_SL",tr:"T_DZ"},
+   {l:"Schulung: Kreislaufproduktion",to:"MG_SL",tr:"T_KP"},
+   {l:"Schulung: Agile Globale Produktion",to:"MG_SL",tr:"T_AGP"}]},
  VB:{imgs:[{f:"adresse-mes",c:"MES geöffnet"}],s:4,type:"a",text:"MES in den Vollbildmodus bringen.",hint:"Im Firefox F11 drücken. Ohne Tastatur: oben rechts das Menü (☰) öffnen und auf das Vollbild-Symbol (⤢) tippen.",to:"MES"},
- T_LEAN:{s:4,type:"n",text:"Schulung Lean & Industrie 4.0: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
- T_SIX:{s:4,type:"n",text:"Schulung Six Sigma: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
- T_DZ:{s:4,type:"n",text:"Schulung Digitaler Zwilling: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
- T_KP:{s:4,type:"n",text:"Schulung Kreislaufproduktion: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
- T_AGP:{s:4,type:"n",text:"Schulung Agile Globale Produktion: Vorbereitung",imgs:[{f:"mes-rollenauswahl",c:"Rolle auswählen"},{f:"mes-stationszuordnung",c:"Arbeitsstation zuordnen"}],hint:"Im MES die Rolle wählen und diese Arbeitsstation zuordnen. Die genaue Vorbereitung und was man mit dem System in dieser Schulung machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_LEAN:{s:4,type:"n",text:"Schulung Lean & Industrie 4.0: spezielle Vorbereitung",hint:"Die allgemeine Vorbereitung ist erledigt. Was für diese Schulung zusätzlich eingestellt werden muss und was man damit machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_SIX:{s:4,type:"n",text:"Schulung Six Sigma: spezielle Vorbereitung",hint:"Die allgemeine Vorbereitung ist erledigt. Was für diese Schulung zusätzlich eingestellt werden muss und was man damit machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_DZ:{s:4,type:"n",text:"Schulung Digitaler Zwilling: spezielle Vorbereitung",hint:"Die allgemeine Vorbereitung ist erledigt. Was für diese Schulung zusätzlich eingestellt werden muss und was man damit machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_KP:{s:4,type:"n",text:"Schulung Kreislaufproduktion: spezielle Vorbereitung",hint:"Die allgemeine Vorbereitung ist erledigt. Was für diese Schulung zusätzlich eingestellt werden muss und was man damit machen kann, wird hier noch ergänzt.",to:"MES"},
+ T_AGP:{s:4,type:"n",text:"Schulung Agile Globale Produktion: spezielle Vorbereitung",hint:"Die allgemeine Vorbereitung ist erledigt. Was für diese Schulung zusätzlich eingestellt werden muss und was man damit machen kann, wird hier noch ergänzt.",to:"MES"},
+ MG:{s:4,sec:"MES vorbereiten",type:"q",text:"Was willst du vorbereiten?",hint:"Die Stationen sind schon an? Dann geht es hier direkt mit dem MES los. Startet eine Station nicht: QR-Code an der Station scannen.",opts:[
+   {l:"Schulung vorbereiten (allgemein)",to:"MG_SL"},
+   {l:"Demo / Besuchstermin",to:"MG_SL"},
+   {l:"Werker an dieser Station",to:"W1"},
+   {l:"Kommissionierer",to:"KO1"},
+   {l:"Kunde",to:"KU1"}]},
+ MG_SL:{imgs:[{f:"mes-spielleiter-training-neu",c:"Spielleiter: Trainingsrunde"}],s:4,type:"a",text:"An einem beliebigen Bildschirm entsperren (Passwort: {PW}), Firefox öffnen und {MES}/gamemaster/training aufrufen.",hint:"Damit bist du Spielleiter. Die Rolle lässt sich auch oben rechts im MES wechseln.",to:"G2"},
+ G2:{imgs:[{f:"mes-spielleiter-training-neu",c:"Kein Training läuft"},{f:"mes-spielleiter-training-laeuft",c:"Ein Training läuft"}],s:4,type:"q",text:"Läuft bereits ein Training?",opts:[
+   {l:"Ja, ein Training läuft",to:"G3A"},
+   {l:"Nein, neues Training anlegen",to:"G3B"},
+   {l:"Altes Training fortsetzen",to:"G3C"}]},
+ G3A:{imgs:[{f:"mes-spielleiter-training-laeuft",c:"„Öffnen“ antippen"}],s:4,type:"a",text:"Das laufende Training über „Öffnen“ aufrufen.",to:"GSW"},
+ G3B:{imgs:[{f:"mes-spielleiter-training-neu",c:"Namen eingeben, Training erstellen"}],s:4,type:"a",text:"Einen Namen eingeben und ein neues Training erstellen.",to:"GSW"},
+ G3C:{imgs:[{f:"mes-spielleiter-training-neu",c:"Rechts: beendete Trainings"}],s:4,type:"a",text:"Rechts in der Liste der beendeten Trainings beim gewünschten Training auf „Fortsetzen“ tippen.",to:"GSW"},
+ GSW:{type:"switch",by:"mgmode",cases:{demo:"D1",general:"G4"}},
+ G4:{s:4,type:"q",text:"Gibt es für diese Schulung ein Preset?",hint:"Presets sind fertige Einstellungen für eine Spielrunde.",yes:"G5P",no:"G5L"},
+ G5P:{s:4,type:"a",text:"Unter „Schnellstart aus Preset“ das passende Preset wählen.",to:"G6"},
+ G5L:{s:4,type:"a",text:"Produktionslinie wählen. Sie legt fest, welche Stationen in der Spielrunde mitspielen.",to:"G5T"},
+ G5T:{imgs:[{f:"mes-spielleiter-stationstopologie",c:"Stationstopologie konfigurieren"}],s:4,type:"q",text:"Sollen Stationen weggelassen oder parallel geschaltet werden?",yes:"G5TI",no:"G5O"},
+ G5TI:{imgs:[{f:"mes-spielleiter-stationstopologie",c:"Obere Reihe: Linie, untere Reihe: Parallelstationen"}],s:4,type:"a",text:"Bei „Stationstopologie“ die individuelle Konfiguration wählen und anpassen, dann speichern.",hint:"Station antippen = deaktivieren. Plus-Knopf darunter = Parallelstation. Pfeil-Knopf = Stränge tauschen.",to:"G5O"},
+ G5O:{s:4,type:"a",text:"OPP wählen: „OPP beim Picker“ oder „OPP an einer Station“ (dann die Station auswählen).",hint:"Der OPP legt fest, wo ein Auftrag einem Polgehäuse zugeordnet wird: beim Kommissionieren oder an einer Station.",to:"G5K"},
+ G5K:{s:4,type:"a",text:"Kommissioniermodus festlegen: vordefiniert oder individuell pro Teiletyp.",to:"G6"},
+ G6:{s:4,type:"a",text:"„Starte Spielrunde“ antippen.",hint:"Eine beendete Spielrunde lässt sich nicht fortsetzen. Offene Bestellungen verfallen dann.",to:"G7"},
+ G7:{imgs:[{f:"station-eingeschaltet",c:"Grüner Einschaltknopf"}],s:4,type:"a",text:"Alle Stationen der gewählten Linie mit dem grünen Knopf einschalten.",hint:"Welche Stationen dazugehören, zeigt {MES}/training/value-stream-kpis. Startet eine Station nicht: QR-Code an der Station scannen und den Stations-Check machen.",to:"G8"},
+ G8:{imgs:[{f:"mes-werker-station-waehlen",c:"Werker: Arbeitsstation wählen"}],s:4,type:"a",text:"An jedem Stationsbildschirm: entsperren (Passwort: {PW}), {MES}/operator aufrufen und die passende Arbeitsstation wählen.",hint:"Namen im MES: Pressen 1–4 = Press1–4, Schrauben 1–2 = Screwer1–2, Fügen 1–2 = Joiner1–2. Die anderen Stationen heißen wie auf dem Schild.",to:"G9"},
+ G9:{imgs:[{f:"smartlight-gruen",c:"Statusanzeige grün: RFID bereit"}],s:4,type:"q",text:"An jeder Station ein Polgehäuse an den RFID-Scanner halten. Leuchtet überall die Statusanzeige oben grün?",yes:"GTR",no:"G9N"},
+ G9N:{s:4,type:"n",text:"An der betroffenen Station den QR-Code scannen und den Stations-Check machen.",hint:"Meist hilft es, den Docker-Container in Docker Desktop neu zu starten.",to:"MG_RFID"},
+ GTR:{type:"switch",by:"training",cases:{T_LEAN:"T_LEAN",T_SIX:"T_SIX",T_DZ:"T_DZ",T_KP:"T_KP",T_AGP:"T_AGP",none:"MG_OK"}},
+ D1:{s:4,type:"a",text:"Spielrunde einstellen (Preset oder Produktionslinie), den Schalter „Demo-Modus“ einschalten und „Starte Spielrunde“ antippen.",hint:"Der Demo-Modus füllt alles mit Beispieldaten. Es müssen keine echten Aufträge laufen.",to:"D2"},
+ D2:{s:4,type:"a",text:"Beim Spielleiter links die Live-Übersicht oder die KPIs öffnen.",to:"VB2"},
+ VB2:{s:4,type:"a",text:"MES in den Vollbildmodus bringen.",hint:"Im Firefox F11 drücken. Ohne Tastatur: oben rechts das Menü (☰) öffnen und auf das Vollbild-Symbol (⤢) tippen.",to:"MG_DEMO"},
+ W1:{s:4,type:"a",text:"Bildschirm an {STATION} entsperren (Passwort: {PW}).",to:"W2"},
+ W2:{imgs:[{f:"mes-rollenwechsel",c:"Rolle oben rechts wechseln"}],s:4,type:"a",text:"Firefox öffnen und {MES}/operator aufrufen.",hint:"Damit bist du Werker. Die Rolle lässt sich auch oben rechts im MES wechseln.",to:"W3"},
+ W3:{imgs:[{f:"mes-werker-station-waehlen",c:"Arbeitsstation wählen"}],s:4,type:"a",text:"Die Arbeitsstation „{MESNAME}“ auswählen.",to:"W4"},
+ W4:{imgs:[{f:"mes-werker-dashboard",c:"Werker-Ansicht"},{f:"mes-werker-downtime-knopf",c:"Oben rechts: Downtime erfassen"},{f:"mes-werker-downtime-laeuft",c:"Downtime läuft"}],s:4,type:"n",text:"So arbeitet der Werker",hint:"Polgehäuse einlegen: Arbeitsschritt und Bauteile erscheinen. Montageanleitung: links unter „Anleitung“. Bei Unterbrechung „Downtime erfassen“ und danach „Downtime beenden“. Schlechtteil: Qualitätsfeedback erfassen.",to:"MG_W"},
+ KO1:{s:4,type:"a",text:"Am Kommissionierplatz Firefox öffnen und {MES}/picker/picking aufrufen.",to:"KO2"},
+ KO2:{imgs:[{f:"mes-kommissionierer-handschuh-qr",c:"QR-Code auf dem orangen Schild"}],s:4,type:"a",text:"Scannerhandschuh einschalten: den QR-Code auf dem orangen Schild über dem Bildschirm scannen.",to:"KO3"},
+ KO3:{imgs:[{f:"mes-kommissionierer-liste",c:"Rechts Auftrag wählen, links Teileliste"},{f:"mes-kommissionierer-matching",c:"Match-and-Pick: Polgehäuse an RFID halten"}],s:4,type:"n",text:"So wird kommissioniert",hint:"Rechts unter „Offene Bestellungen“ einen Auftrag wählen. Teile aus den leuchtenden Fächern nehmen und jeden Container-Barcode mit dem Handschuh scannen (Knopf in der Handinnenfläche). Bei Match-and-Pick das Polgehäuse an den RFID-Scanner über dem Lager halten. Scannen klappt nicht: „Alle Teile kommissionieren“.",to:"MG_K"},
+ KU1:{s:4,type:"a",text:"Firefox öffnen und {MES}/customer/order-catalog aufrufen.",to:"KU2"},
+ KU2:{imgs:[{f:"mes-kunde-bestellen",c:"Variante, Menge, Bestellen"}],s:4,type:"n",text:"So bestellt der Kunde",hint:"Variante wählen, Menge eingeben, „Bestellen“. In der „Bestellübersicht“ den Status verfolgen und gelieferte Aufträge mit „Bestätigen“ abschließen.",to:"MG_KU"},
+ MG_OK:{type:"end",kind:"ok",title:"Schulung ist vorbereitet",text:"Training und Spielrunde laufen, alle Stationen sind als Werker angemeldet. Jetzt kann der Kunde bestellen. Zeigt das MES leere oder alte Daten: Seite neu laden."},
+ MG_DEMO:{type:"end",kind:"ok",title:"Demo läuft",text:"Die Spielrunde läuft mit Beispieldaten im Vollbild. Zeigt das MES leere oder alte Daten: Seite neu laden."},
+ MG_W:{type:"end",kind:"ok",title:"Werker-Platz bereit",text:"Die Station ist im MES als Werker angemeldet."},
+ MG_K:{type:"end",kind:"ok",title:"Kommissionierplatz bereit",text:"Handschuh und Kommissionierliste sind bereit."},
+ MG_KU:{type:"end",kind:"ok",title:"Kunden-Platz bereit",text:"Bestellungen können aufgegeben werden."},
+ MG_RFID:{type:"end",kind:"tech",title:"Station prüfen",reason:"RFID-Statusanzeige bei der Schulungsvorbereitung nicht grün",text:"Mindestens eine Station erkennt das Polgehäuse nicht. Bitte dort den Stations-Check machen."},
  MES:{type:"end",kind:"ok",title:"Station voll einsatzbereit",text:"Alles läuft: Docker, RFID-Reader und MES sind bereit."},
  TM3:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station bekommt keinen Strom",text:"Die Station bekommt keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM4:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Station lädt nicht am Netz",text:"Die Station lädt nicht am Netz. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
@@ -335,6 +381,7 @@ const urlS=new URLSearchParams(location.search).get("s");
 function slug(t){return String(t).toLowerCase().replace(/ä/g,"ae").replace(/ö/g,"oe").replace(/ü/g,"ue").replace(/ß/g,"ss").replace(/[^a-z0-9]+/g,"-").replace(/^-|-$/g,"")}
 const urlStation=urlS&&(STATIONS.find(x=>slug(x)===slug(urlS))||(/^\d+$/.test(urlS)?STATIONS[parseInt(urlS,10)-1]:null));
 let savedSt=lsGet(LS_ST,STATIONS[0]); if(!STATIONS.includes(savedSt)) savedSt=STATIONS[0];
+const MODE=new URLSearchParams(location.search).get("m")==="mes"?"mes":"check";
 const state={view:"check",station:urlStation||savedSt,node:null,history:[],started:0,saved:null};
 if(location.hash==="#auswertung") state.view="stats";
 const $view=document.getElementById("view");
@@ -368,7 +415,7 @@ function expandImgs(L){const out=[];const r=RFID[slug(state.station)]||RFID_STAN
   return out;}
 function photo(n){ const os=LINUX.includes(state.station)?"linux":"windows";
   const L=expandImgs((n.imgs||[]).filter(x=>!x.os||x.os===os)); if(!L.length) return "";
-  return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(x.c)}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(x.c)}" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split('?')[0]+'?r='+Date.now()}"></button><figcaption>${esc(x.c)}</figcaption></figure>`).join("")}</div>`;}
+  return `<div class="photos n${Math.min(L.length,3)}">${L.map(x=>`<figure class="ph"><button class="zoom" data-src="${esc(imgFile(x.f))}" data-cap="${esc(fill(x.c))}" aria-label="Foto groß anzeigen: ${esc(x.c)}"><img src="${esc(imgFile(x.f))}" alt="${esc(fill(x.c))}" decoding="async" onerror="if(!this.dataset.r){this.dataset.r=1;this.src=this.src.split('?')[0]+'?r='+Date.now()}"></button><figcaption>${esc(fill(x.c))}</figcaption></figure>`).join("")}</div>`;}
 /* Foto antippen = groß anzeigen */
 document.addEventListener("click",e=>{const z=e.target.closest(".zoom");
   if(z){const lb=document.getElementById("lb");lb.querySelector("img").src=z.dataset.src;lb.querySelector("p").textContent=z.dataset.cap;lb.hidden=false;return}
@@ -393,8 +440,8 @@ function render(){
     <div class="row"><span class="eyebrow">${state.station} · ${n.sec?esc(n.sec):`${n.s+1}/${SECTIONS.length} ${SECTIONS[n.s]}`}</span>${kindTag}</div>
     ${sectionBar(n.s)}
     ${photo(n)}
-    <p class="q">${esc(n.text)}</p>
-    ${n.hint?`<p class="hint">${esc(n.hint)}</p>`:""}
+    <p class="q">${esc(fill(n.text))}</p>
+    ${n.hint?`<p class="hint">${esc(fill(n.hint))}</p>`:""}
     ${(n.imgs||[]).some(x=>x.rfid)&&(RFID[slug(state.station)]||[]).length>1?`<p class="hint"><b>Diese Station hat zwei RFID-Reader.</b> Prüfe beide und antworte für den Reader, der schlechter aussieht.</p>`:""}
     ${btns}
     <div class="row"><button class="link" id="back">${state.history.length?"Zurück":"Abbrechen"}</button><span class="save">Schritt ${state.history.length+1}</span></div>
@@ -409,9 +456,13 @@ function render(){
 
 /* Automatische Weichen (ohne Frage), z. B. Docker-Verhalten pro Station */
 function dockerMode(st){const c=CFG;if((c.DOCKER_MIT_ABFRAGE||[]).includes(st))return"admin";if((c.DOCKER_OHNE_ABFRAGE||[]).includes(st))return"auto";return"unknown"}
+function mgMode(hist){const h=hist.find(x=>x.id==="MG");return h&&h.answer.startsWith("Demo")?"demo":"general"}
+function trainingOf(hist){const h=hist.find(x=>x.id==="USE");if(!h)return"none";const o=FLOW.USE.opts.find(o=>o.l===h.answer);return o&&o.tr||"none"}
+/* Platzhalter in Texten: {PW} Passwort, {MES} MES-Adresse, {STATION} Station, {MESNAME} Name der Station im MES */
+function fill(t){if(!t)return t;const st=state.station||"";return String(t).replaceAll("{PW}",CFG.PASSWORT||"(Passwort beim Team)").replaceAll("{MES}",CFG.MES_ADRESSE||"").replaceAll("{STATION}",st).replaceAll("{MESNAME}",(CFG.MES_NAMEN||{})[st]||st)}
 function usageOf(hist){const h=hist.find(x=>x.id==="USE");return h?h.answer:""}
 function goalMode(hist){const h=hist.find(x=>x.id==="GOAL");return h&&h.answer.startsWith("Batterie")?"batterie":"netz"}
-function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):n.by==="goal"?goalMode(state.history):"unknown"];n=FLOW[id]}return id}
+function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):n.by==="goal"?goalMode(state.history):n.by==="mgmode"?mgMode(state.history):n.by==="training"?trainingOf(state.history):"unknown"];n=FLOW[id]}return id}
 function go(to,answer,x){
   state.history.push({id:state.node,answer,obs:x.obs||null,pos:x.pos===undefined?null:x.pos,tech:!!x.tech});
   state.node=resolve(to); render(); if(FLOW[state.node].type==="end") finish(); window.scrollTo(0,0);
@@ -424,9 +475,9 @@ function back(){
 /* ---------- Prüfprotokoll: was wurde in welcher Reihenfolge gemacht ---------- */
 function protoSteps(path){ /* path: ["LP:Beide","FC:Ja",...] */
   return path.map(p=>{const i=p.indexOf(":");const id=p.slice(0,i),ans=p.slice(i+1);const n=FLOW[id];if(!n)return null;
-    if(n.type==="q") return {kind:"q",text:n.text,ans};
-    if(n.type==="a") return {kind:"a",text:n.text,ans:"erledigt"};
-    return {kind:"n",text:n.text,ans:"gelesen"};}).filter(Boolean);
+    if(n.type==="q") return {kind:"q",text:fill(n.text),ans};
+    if(n.type==="a") return {kind:"a",text:fill(n.text),ans:"erledigt"};
+    return {kind:"n",text:fill(n.text),ans:"gelesen"};}).filter(Boolean);
 }
 const fmtFull=t=>new Date(t).toLocaleString("de-DE",{weekday:"short",day:"2-digit",month:"2-digit",year:"numeric",hour:"2-digit",minute:"2-digit"});
 const fmtDur=s=>s==null?"–":s<60?s+" s":Math.round(s/60)+" min";
@@ -464,30 +515,35 @@ async function finish(){
   const run={station:state.station,ts:Date.now(),end:state.node,kind:n.kind,
     techNote:state.history.some(h=>h.tech),findings,unresolved:n.reason||null,
     path:state.history.map(h=>h.id+":"+h.answer),durationSec:Math.round((Date.now()-state.started)/1000)};
-  state.lastRun=run; state.saved="saving"; renderEnd(n);
+  state.lastRun=run;
+  if(MODE==="mes"){state.saved="";renderEnd(n);return}   /* MES-Guide: keine Prüfung, nichts speichern */
+  state.saved="saving"; renderEnd(n);
   state.saved=await saveRun(run); if(state.view==="check"&&FLOW[state.node]===n) renderEnd(n);
 }
 
 function renderStart(){
   const fromQR=!!urlStation&&!state.pickStation;
   $view.innerHTML=`<section class="card">
-    <span class="eyebrow">Lernfabrik · Funktionsprüfung</span>
+    ${MODE==="mes"?`<span class="eyebrow">Lernfabrik · MES-Guide</span>
+    <h1>MES vorbereiten</h1>
+    <p class="hint">Die Stationen laufen schon? Dann führt dich der Guide durch das MES: Schulung, Demo oder einzelne Rollen. Passwort für die Stations-PCs: <b>${esc(CFG.PASSWORT||"")}</b></p>`
+    :`<span class="eyebrow">Lernfabrik · Funktionsprüfung</span>
     <h1>Läuft die Station?</h1>
-    <p class="hint">Du wirst Schritt für Schritt durch die Prüfung geführt: Beleuchtung, Strom, Monitor und PC, Docker und MES. Antworte einfach mit den Buttons.</p>
-    ${fromQR?`${photo({imgs:[schildImg(state.station)]})}<div class="picked"><span class="eyebrow">Du prüfst</span><b>${esc(state.station)}</b>
+    <p class="hint">Du wirst Schritt für Schritt durch die Prüfung geführt: Beleuchtung, Strom, Monitor und PC, Docker und MES. Antworte einfach mit den Buttons.</p>`}
+    ${fromQR?`${photo({imgs:[schildImg(state.station)]})}<div class="picked"><span class="eyebrow">${MODE==="mes"?"Du bist an":"Du prüfst"}</span><b>${esc(state.station)}</b>
         <button class="link" id="change">Andere Station wählen</button></div>`
       :`<div id="schild">${photo({imgs:[schildImg(state.station)]})}</div>
-        <label class="f" for="st">Welche Station prüfst du?
+        <label class="f" for="st">${MODE==="mes"?"An welcher Station bist du? (wichtig für den Werker)":"Welche Station prüfst du?"}
         <select id="st">${STATIONS.map(s=>`<option ${s===state.station?"selected":""}>${esc(s)}</option>`).join("")}</select></label>`}
-    <button class="btn primary" id="go">Prüfung starten</button>
+    <button class="btn primary" id="go">${MODE==="mes"?"Los geht's":"Prüfung starten"}</button>
   </section>
-  <p class="note">Jede abgeschlossene Prüfung wird gespeichert, damit wir sehen, wo die Fehler am häufigsten liegen.</p>`;
+  ${MODE==="mes"?`<p class="note">Station funktioniert nicht? <a href="./${urlStation?"?s="+slug(state.station):""}">Zum Stations-Check</a></p>`:`<p class="note">Jede abgeschlossene Prüfung wird gespeichert, damit wir sehen, wo die Fehler am häufigsten liegen. Stationen laufen schon? <a href="./?m=mes${urlStation?"&s="+slug(state.station):""}">Direkt zum MES-Guide</a></p>`}`;
   const sel=document.getElementById("st");
   if(sel) sel.onchange=e=>{state.station=e.target.value;lsSet(LS_ST,state.station);document.getElementById("schild").innerHTML=photo({imgs:[schildImg(state.station)]})};
   const ch=document.getElementById("change");
   if(ch) ch.onclick=()=>{state.pickStation=true;renderStart();document.getElementById("st").focus()};
   document.getElementById("go").onclick=()=>{if(sel){state.station=sel.value;lsSet(LS_ST,state.station)}
-    state.node=START;state.history=[];state.started=Date.now();state.saved=null;render();};
+    state.node=MODE==="mes"?"MG":START;state.history=[];state.started=Date.now();state.saved=null;render();};
 }
 
 function renderEnd(n){
@@ -499,7 +555,7 @@ function renderEnd(n){
   $view.innerHTML=`<section class="card result ${n.kind}">
     <span class="eyebrow">${esc(state.station)} · Ergebnis</span>
     <h1>${esc(n.title)}</h1>
-    <p class="hint" style="color:var(--ink)">${esc(n.text)}</p>
+    <p class="hint" style="color:var(--ink)">${esc(fill(n.text))}</p>
     ${photo(n)}
     ${help?`<p class="hint" style="color:var(--ink)">Zeig ${n.kind==="dorian"?"Dorian":"dem Techniker"} das Prüfprotokoll unten oder schick es ihm. Dann muss niemand die Schritte wiederholen.</p>`:""}
     ${n.kind==="ok"&&usageOf(state.history)?`<p class="hint" style="color:var(--ink)"><b>Genutzt für:</b> ${esc(usageOf(state.history))}</p>`:""}
