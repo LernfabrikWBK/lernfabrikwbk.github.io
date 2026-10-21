@@ -241,7 +241,7 @@ const FLOW={
    {l:"Grün und Orange",to:"SL",k:"yes"},
    {l:"Nur Grün",to:"DK1"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
- SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MO",no:"DK1",noAgain:"DOR3",confirm:true},
+ SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MO",no:"DK1",noAgain:"PR",confirm:true},
  DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
  DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
  TA:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
@@ -253,6 +253,8 @@ const FLOW={
  KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",yes:"DOR2",no:"KA1",noAgain:"DOR4",obsNo:"IO-Link-Kabel nicht gesteckt"},
  KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
+ PR:{imgs:[{rfid:"ohne",c:"Pol-Topf herausnehmen …"},{rfid:"mit",c:"… und wieder einlegen"}],s:3,type:"a",text:"Docker läuft, aber das Smart-Light bleibt aus: Pol-Topf einmal herausnehmen und wieder einlegen.",fix:"Pol-Topf neu einlegen nötig",to:"SL3"},
+ SL3:{imgs:[{f:"smartlight-gruen",c:"Grün: alles bereit"},{f:"smartlight-aus",c:"Weiß: noch nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light jetzt grün?",yes:"MO",no:"DOR3",confirm:true},
  MO:{imgs:[{f:"browser-verknuepfung",c:"1. Firefox in der Taskleiste öffnen"},{f:"adresse-mes",c:"2. MES-Adresse auswählen"}],s:4,type:"a",text:"MES öffnen: Firefox starten und die MES-Adresse 172.22.192.101:4200 aufrufen.",to:"USE"},
  USE:{s:4,type:"q",text:"Wofür soll das MES genutzt werden?",opts:[
    {l:"Besuchstermin / Führung",to:"VB"},
@@ -321,7 +323,7 @@ const FLOW={
  TM7:{type:"end",kind:"tech",title:"Techniker rufen",reason:"IO-Link-Master ohne Strom",text:"Der IO-Link-Master hat keinen Strom. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM8:{type:"end",kind:"tech",title:"Techniker rufen",reason:"NUC-PC lässt sich nicht einschalten",text:"Der NUC-PC geht nicht an, obwohl Strom und Kabel geprüft sind. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  TM9:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Touch funktioniert nicht",text:"Der Touch am Monitor reagiert nicht, auch nach Neustart und neu gestecktem Kabel. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
- DOR3:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Smart-Light wird trotz laufendem Docker nicht grün",text:"Der RFID-Reader erkennt den Pol-Topf, aber das Smart-Light wird auch nach dem Docker-Neustart nicht grün."},
+ DOR3:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Smart-Light wird trotz laufendem Docker nicht grün",text:"Der RFID-Reader erkennt den Pol-Topf, aber das Smart-Light wird auch nach Docker-Neustart und neu eingelegtem Pol-Topf nicht grün."},
  DOR4:{type:"end",kind:"dorian",title:"Dorian melden",reason:"IO-Link-Kabel: richtige Position unklar",text:"Die Kabel am IO-Link-Master stecken auch nach dem Einstecken nicht richtig oder die Position ist unklar."},
  DOR1:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Docker läuft auch nach PC-Neustart nicht",text:"Docker startet auch nach einem PC-Neustart nicht richtig."},
  DOR2:{type:"end",kind:"dorian",title:"Dorian melden",reason:"RFID reagiert trotz gesteckter Kabel nicht",text:"RFID-Reader reagiert nicht, obwohl alle Kabel am IO-Link-Master stecken."}
