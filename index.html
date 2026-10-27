@@ -10,6 +10,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@600;700&family=JetBrains+Mono:wght@500&display=swap">
 <style>
+.q,.hint{overflow-wrap:anywhere}
+.link{display:inline-block;max-width:100%;overflow-wrap:anywhere;word-break:break-all;font-family:ui-monospace,Menlo,monospace;font-size:.88em;background:#e3ebe5;border-radius:6px;padding:1px 6px;margin:2px 0}
 /* Layout: one-column phone app, schaltschrank-artige Statuskarten, große Daumen-Buttons */
 :root{
   --bg:#eef1ee; --panel:#ffffff; --ink:#18201b; --muted:#5d6a61; --line:#d3dad4;
@@ -446,8 +448,8 @@ function render(){
     <div class="row"><span class="eyebrow">${state.station} · ${n.sec?esc(n.sec):`${n.s+1}/${SECTIONS.length} ${SECTIONS[n.s]}`}</span>${kindTag}</div>
     ${sectionBar(n.s)}
     ${photo(n)}
-    <p class="q">${esc(fill(n.text))}</p>
-    ${n.hint?`<p class="hint">${esc(fill(n.hint))}</p>`:""}
+    <p class="q">${rich(fill(n.text))}</p>
+    ${n.hint?`<p class="hint">${rich(fill(n.hint))}</p>`:""}
     ${(n.imgs||[]).some(x=>x.rfid)&&(RFID[slug(state.station)]||[]).length>1?`<p class="hint"><b>Diese Station hat zwei RFID-Reader.</b> Prüfe beide und antworte für den Reader, der schlechter aussieht.</p>`:""}
     ${btns}
     <div class="row"><button class="link" id="back">${state.history.length?"Zurück":"Abbrechen"}</button><span class="save">Schritt ${state.history.length+1}</span></div>
@@ -465,6 +467,8 @@ function dockerMode(st){const c=CFG;if((c.LINUX_STATIONS||[]).includes(st))retur
 function mgMode(hist){const h=hist.find(x=>x.id==="MG");return h&&h.answer.startsWith("Demo")?"demo":"general"}
 function trainingOf(hist){const h=hist.find(x=>x.id==="USE");if(!h)return"none";const o=FLOW.USE.opts.find(o=>o.l===h.answer);return o&&o.tr||"none"}
 /* Platzhalter in Texten: {PW} Passwort, {MES} MES-Adresse, {STATION} Station, {MESNAME} Name der Station im MES */
+/* Links im Text: eigener Kasten, der auf dem Handy umbricht statt aus der Karte zu ragen */
+function rich(t){return esc(t).replace(/(https?:\/\/[^\s<]+?)([.,;:)]?(?=\s|$|<))/g,'<span class="link">$1</span>$2')}
 function fill(t){if(!t)return t;const st=state.station||"";return String(t).replaceAll("{PW}",CFG.PASSWORT||"(Passwort beim Team)").replaceAll("{MES}",CFG.MES_ADRESSE||"").replaceAll("{STATION}",st).replaceAll("{MESNAME}",(CFG.MES_NAMEN||{})[st]||st)}
 function usageOf(hist){const h=hist.find(x=>x.id==="USE");return h?h.answer:""}
 function goalMode(hist){const h=hist.find(x=>x.id==="GOAL");return h&&h.answer.startsWith("Batterie")?"batterie":"netz"}
@@ -561,7 +565,7 @@ function renderEnd(n){
   $view.innerHTML=`<section class="card result ${n.kind}">
     <span class="eyebrow">${esc(state.station)} · Ergebnis</span>
     <h1>${esc(n.title)}</h1>
-    <p class="hint" style="color:var(--ink)">${esc(fill(n.text))}</p>
+    <p class="hint" style="color:var(--ink)">${rich(fill(n.text))}</p>
     ${photo(n)}
     ${help?`<p class="hint" style="color:var(--ink)">Zeig ${n.kind==="dorian"?"Dorian":"dem Techniker"} das Prüfprotokoll unten oder schick es ihm. Dann muss niemand die Schritte wiederholen.</p>`:""}
     ${n.kind==="ok"&&usageOf(state.history)?`<p class="hint" style="color:var(--ink)"><b>Genutzt für:</b> ${esc(usageOf(state.history))}</p>`:""}
