@@ -227,7 +227,7 @@ const FLOW={
  TO4:{s:2,type:"q",text:"Nochmal nach oben wischen. Reagiert der Touch jetzt?",yes:"LOG",no:"TM9",confirm:true},
  LOG:{imgs:[{f:"anmelden-kennwort",c:"Benutzer Lernfabrik, Passwort {PW}"}],s:2,type:"a",text:"Falls nötig: mit dem Benutzer Lernfabrik und dem Passwort {PW} anmelden.",to:"DW"},
 
- DW:{type:"switch",by:"docker",cases:{admin:"DWA",auto:"DWN",unknown:"DWU"}},
+ DW:{type:"switch",by:"docker",cases:{admin:"DWA",auto:"DWN",unknown:"DWU",linux:"R1"}},
  DWA:{imgs:[{f:"docker-bestaetigen",c:"Diese Abfrage sollte von selbst erscheinen",os:"windows"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Erscheint die Docker-Abfrage von selbst?",yes:"DWY",no:"DA",obsNo:"Docker startete nicht automatisch"},
  DWN:{imgs:[{f:"docker-taskleiste",c:"Docker-Symbol in der Taskleiste"},{f:"docker-laeuft",c:"Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Startet Docker von selbst?",hint:"An dieser Station kommt keine Abfrage. Docker erscheint einfach in der Taskleiste.",yes:"R1",no:"DA",obsNo:"Docker startete nicht automatisch"},
  DWU:{imgs:[{f:"docker-bestaetigen",c:"Abfrage, die erscheinen kann",os:"windows"},{f:"docker-taskleiste",c:"Docker-Symbol in der Taskleiste"}],s:3,type:"q",text:"Nach dem Anmelden bis zu 30 Sekunden warten. Was passiert mit Docker?",opts:[
@@ -239,9 +239,10 @@ const FLOW={
  R1:{imgs:[{rfid:"mit",c:"Pol-Topf so einlegen"}],s:3,type:"a",text:"Einen Pol-Topf in die Aufnahme am RFID-Reader einlegen.",to:"R2"},
  R2:{imgs:[{rfid:"mit",c:"Grün und Orange: Pol-Topf erkannt"},{rfid:"ohne",c:"Nur Grün: Reader an, kein Pol-Topf erkannt"}],s:3,type:"q",text:"Was leuchtet am RFID-Reader?",opts:[
    {l:"Grün und Orange",to:"SL",k:"yes"},
-   {l:"Nur Grün",to:"DK1"},
+   {l:"Nur Grün",to:"OSR"},
    {l:"Gar nichts",to:"IO",k:"no"}]},
- SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MO",no:"DK1",noAgain:"PR",confirm:true},
+ OSR:{type:"switch",by:"os",cases:{windows:"DK1",linux:"DOR5"}},
+ SL:{imgs:[{f: "smartlight-gruen", c: "Grün: Docker läuft"}, {f: "smartlight-aus", c: "Weiß: Docker läuft nicht"}],s:3,type:"q",text:"Leuchtet das Smart-Light oben grün?",hint:"Der Pol-Topf muss dabei eingesteckt sein.",yes:"MO",no:"OSR",noAgain:"PR",confirm:true},
  DK1:{imgs:[{f: "docker-taskleiste", c: "Docker-Symbol in der Taskleiste"}, {f: "docker-laeuft", c: "Docker-Fenster: Container läuft"}],s:3,type:"q",text:"Am PC: Ist Docker automatisch gestartet?",yes:"DK3",no:"DK2",obsNo:"Docker nicht automatisch gestartet"},
  DK2:{imgs:[{f: "docker-admin-ausfuehren", c: "Rechtsklick: Als Administrator ausführen"}, {f: "docker-bestaetigen", c: "Abfrage mit Ja bestätigen"}],s:3,type:"a",text:"Docker als Administrator ausführen, die Admin-Abfrage bestätigen und kurz warten.",to:"TA"},
  TA:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DK3",clearOnNo:true},
@@ -327,6 +328,7 @@ const FLOW={
  TM9:{type:"end",kind:"tech",title:"Techniker rufen",reason:"Touch funktioniert nicht",text:"Der Touch am Monitor reagiert nicht, auch nach Neustart und neu gestecktem Kabel. Bitte Fabian Hofsäß oder die Elektrowerkstatt informieren."},
  DOR3:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Smart-Light wird trotz laufendem Docker nicht grün",text:"Der RFID-Reader erkennt den Pol-Topf, aber das Smart-Light wird auch nach Docker-Neustart und neu eingelegtem Pol-Topf nicht grün."},
  DOR4:{type:"end",kind:"dorian",title:"Dorian melden",reason:"IO-Link-Kabel: richtige Position unklar",text:"Die Kabel am IO-Link-Master stecken auch nach dem Einstecken nicht richtig oder die Position ist unklar."},
+ DOR5:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Linux-Station: Pol-Topf wird nicht erkannt",text:"An dieser Linux-Station startet Docker automatisch. Wird der Pol-Topf trotzdem nicht erkannt, lässt sich das nicht selbst beheben."},
  DOR1:{type:"end",kind:"dorian",title:"Dorian melden",reason:"Docker läuft auch nach PC-Neustart nicht",text:"Docker startet auch nach einem PC-Neustart nicht richtig."},
  DOR2:{type:"end",kind:"dorian",title:"Dorian melden",reason:"RFID reagiert trotz gesteckter Kabel nicht",text:"RFID-Reader reagiert nicht, obwohl alle Kabel am IO-Link-Master stecken."}
 };
@@ -459,14 +461,14 @@ function render(){
 }
 
 /* Automatische Weichen (ohne Frage), z. B. Docker-Verhalten pro Station */
-function dockerMode(st){const c=CFG;if((c.DOCKER_MIT_ABFRAGE||[]).includes(st))return"admin";if((c.DOCKER_OHNE_ABFRAGE||[]).includes(st))return"auto";return"unknown"}
+function dockerMode(st){const c=CFG;if((c.LINUX_STATIONS||[]).includes(st))return"linux";if((c.DOCKER_MIT_ABFRAGE||[]).includes(st))return"admin";if((c.DOCKER_OHNE_ABFRAGE||[]).includes(st))return"auto";return"unknown"}
 function mgMode(hist){const h=hist.find(x=>x.id==="MG");return h&&h.answer.startsWith("Demo")?"demo":"general"}
 function trainingOf(hist){const h=hist.find(x=>x.id==="USE");if(!h)return"none";const o=FLOW.USE.opts.find(o=>o.l===h.answer);return o&&o.tr||"none"}
 /* Platzhalter in Texten: {PW} Passwort, {MES} MES-Adresse, {STATION} Station, {MESNAME} Name der Station im MES */
 function fill(t){if(!t)return t;const st=state.station||"";return String(t).replaceAll("{PW}",CFG.PASSWORT||"(Passwort beim Team)").replaceAll("{MES}",CFG.MES_ADRESSE||"").replaceAll("{STATION}",st).replaceAll("{MESNAME}",(CFG.MES_NAMEN||{})[st]||st)}
 function usageOf(hist){const h=hist.find(x=>x.id==="USE");return h?h.answer:""}
 function goalMode(hist){const h=hist.find(x=>x.id==="GOAL");return h&&h.answer.startsWith("Batterie")?"batterie":"netz"}
-function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):n.by==="goal"?goalMode(state.history):n.by==="mgmode"?mgMode(state.history):n.by==="training"?trainingOf(state.history):"unknown"];n=FLOW[id]}return id}
+function resolve(id){let n=FLOW[id],g=0;while(n&&n.type==="switch"&&g++<5){id=n.cases[n.by==="docker"?dockerMode(state.station):n.by==="os"?((CFG.LINUX_STATIONS||[]).includes(state.station)?"linux":"windows"):n.by==="goal"?goalMode(state.history):n.by==="mgmode"?mgMode(state.history):n.by==="training"?trainingOf(state.history):"unknown"];n=FLOW[id]}return id}
 function go(to,answer,x){
   state.history.push({id:state.node,answer,obs:x.obs||null,pos:x.pos===undefined?null:x.pos,tech:!!x.tech});
   state.node=resolve(to); render(); if(FLOW[state.node].type==="end") finish(); window.scrollTo(0,0);

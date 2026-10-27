@@ -24,7 +24,8 @@ window.CONFIG = {
 
   // 4) Docker nach dem Anmelden: Kommt eine Abfrage (Admin/Bestätigung) oder startet Docker still von selbst?
   //    Stationen, die in keiner Liste stehen, bekommen eine Auswahl ("Abfrage kam" / "startete ohne Abfrage" / "nichts passiert").
-  DOCKER_MIT_ABFRAGE:  ["Pressen 1", "Pressen 2", "Fügen 1"],
+  //    Linux-Stationen (LINUX_STATIONS) brauchen keinen Eintrag: Docker startet dort immer selbst mit Admin-Rechten.
+  DOCKER_MIT_ABFRAGE:  ["Pressen 2", "Fügen 1"],
   DOCKER_OHNE_ABFRAGE: ["Pressen 3", "Pressen 4", "Fügen 2", "Schrauben 1", "Schrauben 2"],
 
   // 5) MES

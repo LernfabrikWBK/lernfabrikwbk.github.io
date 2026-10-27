@@ -9,6 +9,8 @@ Nach Strom, PC und Docker wird gefragt, wofür das MES genutzt wird: Besuchsterm
 
 Die Docker-Abfrage nach dem Anmelden hängt von der Station ab (`config.js`: `DOCKER_MIT_ABFRAGE` / `DOCKER_OHNE_ABFRAGE`).
 
+Linux-Stationen (`LINUX_STATIONS`, aktuell Pressen 1): Docker startet dort immer selbst mit Admin-Rechten, der Docker-Schritt entfällt. Wird der Pol-Topf nicht erkannt, geht es direkt zu Dorian, weil man dort nichts selbst beheben kann.
+
 ## MES-Guide
 
 Eigener Einstieg über `?m=mes` (QR-Code „MES vorbereiten"), wenn die Stationen schon laufen. Inhalt nach `docs/Anleitung_MES.pdf`:
@@ -17,13 +19,14 @@ Aus dem Stations-Check führen die Schulungen in denselben Ablauf und danach zum
 
 ## Geprüft
 
-- Alle 125 Schritte erreichbar, keine Sackgassen.
-- Alle 18 Ergebnisse erreichbar.
-- Keine Endlosschleifen (Zustandsanalyse über alle 3.747 möglichen Zustände).
+- Alle 131 Schritte erreichbar, keine Sackgassen.
+- Alle 19 Ergebnisse erreichbar.
+- Keine Endlosschleifen (Zustandsanalyse über alle 5.655 möglichen Zustände).
 
 ```mermaid
 flowchart TD
 DW{{"Docker-Verhalten der Station"}}
+OSR{{"Linux oder Windows?"}}
 MG{"MES-Guide: Was vorbereiten?"}
 GSW{{"Demo oder Schulung"}}
 GTR{{"Gewählte Schulung"}}
@@ -99,8 +102,12 @@ subgraph S3["4 – Docker & MES"]
   RS["PC einmal neu starten und danach erneut anmelden."]
   TC{"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün un…"}
   IO{"Leuchtet der IO-Link-Master?"}
+  KR{"Steckt das Kabel direkt am RFID-Reader fest?"}
+  KR1["Kabel am RFID-Reader fest einstecken."]
   KA{"Sind alle Kabel am IO-Link-Master eingesteckt?"}
   KA1["Kabel einstecken. Wenn die Position unklar ist, mit einer …"]
+  PR["Docker läuft, aber das Smart-Light bleibt aus: Pol-Topf ei…"]
+  SL3{"Leuchtet das Smart-Light jetzt grün?"}
 end
 subgraph S4["5 – MES-Nutzung / MES-Guide"]
   MO["MES öffnen: Firefox starten und die MES-Adresse 172.22.192…"]
@@ -158,6 +165,7 @@ TM8(["Techniker rufen: NUC-PC lässt sich nicht einschalten"])
 TM9(["Techniker rufen: Touch funktioniert nicht"])
 DOR3(["Dorian melden: Smart-Light wird trotz laufendem Docker nicht grün"])
 DOR4(["Dorian melden: IO-Link-Kabel: richtige Position unklar"])
+DOR5(["Dorian melden: Linux-Station: Pol-Topf wird nicht erkannt"])
 DOR1(["Dorian melden: Docker läuft auch nach PC-Neustart nicht"])
 DOR2(["Dorian melden: RFID reagiert trotz gesteckter Kabel nicht"])
 GOAL -->|"Netzbetrieb (Führung / Schulung im Layout)"| LP
@@ -190,8 +198,8 @@ PT0 -->|Ja| H2
 PT0 -->|Nein| H2
 H2 -->|Ja| NA
 H2 -->|Nein| TM3
-BM -.->|"Station: unbekannt"| NK
-BM -.->|"Station: unbekannt"| BA
+BM -.->|"Netzbetrieb"| NK
+BM -.->|"Batteriebetrieb"| BA
 NK -->|Ja| NA
 NK -->|Nein| K
 K --> PT
@@ -247,6 +255,7 @@ LOG --> DW
 DW -.->|"Station: mit Abfrage"| DWA
 DW -.->|"Station: ohne Abfrage"| DWN
 DW -.->|"Station: unbekannt"| DWU
+DW -.->|"Linux-Station"| R1
 DWA -->|Ja| DWY
 DWA -->|Nein| DA
 DWN -->|Ja| R1
@@ -258,11 +267,13 @@ DWY --> R1
 DA --> R1
 R1 --> R2
 R2 -->|"Grün und Orange"| SL
-R2 -->|"Nur Grün"| DK1
+R2 -->|"Nur Grün"| OSR
 R2 -->|"Gar nichts"| IO
+OSR -.->|"Windows-Station"| DK1
+OSR -.->|"Linux-Station"| DOR5
 SL -->|Ja| MO
-SL -->|Nein| DK1
-SL -.->|"Nein (2. Mal)"| DOR3
+SL -->|Nein| OSR
+SL -.->|"Nein (2. Mal)"| PR
 DK1 -->|Ja| DK3
 DK1 -->|Nein| DK2
 DK2 --> TA
@@ -274,12 +285,19 @@ TB -->|Nein| RS
 RS --> TC
 TC -->|Ja| SL
 TC -->|Nein| DOR1
-IO -->|Ja| KA
+IO -->|Ja| KR
 IO -->|Nein| TM7
+KR -->|Ja| KA
+KR -->|Nein| KR1
+KR -.->|"Nein (2. Mal)"| KA
+KR1 --> R1
 KA -->|Ja| DOR2
 KA -->|Nein| KA1
 KA -.->|"Nein (2. Mal)"| DOR4
 KA1 --> R1
+PR --> SL3
+SL3 -->|Ja| MO
+SL3 -->|Nein| DOR3
 MO --> USE
 USE -->|"Besuchstermin / Führung"| VB
 USE -->|"Schulung: Lean & Industrie 4.0"| MG_SL
@@ -305,8 +323,8 @@ G2 -->|"Altes Training fortsetzen"| G3C
 G3A --> GSW
 G3B --> GSW
 G3C --> GSW
-GSW -.->|"Station: unbekannt"| D1
-GSW -.->|"Station: unbekannt"| G4
+GSW -.->|"Demo"| D1
+GSW -.->|"Schulung"| G4
 G4 -->|Ja| G5P
 G4 -->|Nein| G5L
 G5P --> G6
@@ -322,12 +340,12 @@ G8 --> G9
 G9 -->|Ja| GTR
 G9 -->|Nein| G9N
 G9N --> MG_RFID
-GTR -.->|"Station: unbekannt"| T_LEAN
-GTR -.->|"Station: unbekannt"| T_SIX
-GTR -.->|"Station: unbekannt"| T_DZ
-GTR -.->|"Station: unbekannt"| T_KP
-GTR -.->|"Station: unbekannt"| T_AGP
-GTR -.->|"Station: unbekannt"| MG_OK
+GTR -.->|"T_LEAN"| T_LEAN
+GTR -.->|"T_SIX"| T_SIX
+GTR -.->|"T_DZ"| T_DZ
+GTR -.->|"T_KP"| T_KP
+GTR -.->|"T_AGP"| T_AGP
+GTR -.->|"none"| MG_OK
 D1 --> D2
 D2 --> VB2
 VB2 --> MG_DEMO
@@ -345,6 +363,5 @@ classDef tech fill:#f8e0dc,stroke:#c0392b,color:#501313
 classDef dorian fill:#fbecd3,stroke:#b26a00,color:#412402
 class MG_OK,MG_DEMO,MG_W,MG_K,MG_KU,MES ok
 class MG_RFID,TM3,TM4,TM5,TM6,TM7,TM8,TM9 tech
-class DOR3,DOR4,DOR1,DOR2 dorian
-
+class DOR3,DOR4,DOR5,DOR1,DOR2 dorian
 ```
