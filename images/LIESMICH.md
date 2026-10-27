@@ -43,4 +43,4 @@ Neue Station mit eigenen Fotos: Fotos nach diesem Schema benennen und in `index.
 
 Noch ohne eigene RFID- und Schild-Fotos: Demontagewagen, Motorprüfstand, Automatische Pressestation.
 
-Noch ohne Foto: Fernbedienung für die LED-Panels, HDMI-Kabel am NUC-PC, Stromkabel hinten am Monitor, Stromkabel am NUC-PC, Kabel hinten am Monitor (Touch).
+Noch ohne Foto: Fernbedienung für die LED-Panels, HDMI-Kabel am NUC-PC, Stromkabel hinten am Monitor, Stromkabel am NUC-PC, Kabel hinten am Monitor (Touch), Kabelanschluss am RFID-Reader (Schritt „Steckt das Kabel direkt am RFID-Reader fest?", pro Station).

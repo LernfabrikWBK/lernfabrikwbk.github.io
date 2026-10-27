@@ -250,8 +250,8 @@ const FLOW={
  RS:{imgs:[{f: "pc-neustart-windows", c: "Start, Ein/Aus, Neu starten", os: "windows"}, {f: "linux-power", c: "Menü oben rechts am Bildschirm öffnen", os: "linux"}, {f: "linux-neustart", c: "Ausschalten, dann Neustart wählen", os: "linux"}],s:3,type:"a",text:"PC einmal neu starten und danach erneut anmelden.",to:"TC",fix:"PC-Neustart war nötig"},
  TC:{imgs:[{rfid:"mit",c:"So soll es aussehen: Grün und Orange"}],s:3,type:"q",text:"Pol-Topf erneut einlegen: Leuchtet der RFID-Reader grün und orange?",yes:"SL",no:"DOR1",clearOnNo:true},
  IO:{imgs:[{f: "io-link-master-strom", c: "IO-Link-Master mit Strom: LEDs leuchten"}],s:3,type:"q",text:"Leuchtet der IO-Link-Master?",yes:"KR",no:"TM7"},
- KR:{imgs:[{rfid:"ohne",c:"Kabel hinten am RFID-Reader"}],s:3,type:"q",text:"Steckt das Kabel direkt am RFID-Reader fest?",hint:"Strom ist da, aber der Reader leuchtet nicht: Meist wurde einfach ein Kabel abgesteckt.",yes:"KA",no:"KR1",noAgain:"KA",obsNo:"Kabel am RFID-Reader abgesteckt"},
- KR1:{imgs:[{rfid:"ohne",c:"Danach sollte der Reader grün leuchten"}],s:3,type:"a",text:"Kabel am RFID-Reader fest einstecken.",to:"R1"},
+ KR:{s:3,type:"q",text:"Steckt das Kabel direkt am RFID-Reader fest?",hint:"Strom ist da, aber der Reader leuchtet nicht: Meist wurde einfach ein Kabel abgesteckt.",yes:"KA",no:"KR1",noAgain:"KA",obsNo:"Kabel am RFID-Reader abgesteckt"},
+ KR1:{s:3,type:"a",text:"Kabel am RFID-Reader fest einstecken.",to:"R1"},
  KA:{imgs:[{f: "io-link-master-strom", c: "Alle Stecker eingesteckt"}],s:3,type:"q",text:"Sind alle Kabel am IO-Link-Master eingesteckt?",hint:"Prüfe jedes Kabel vom RFID-Reader bis zum IO-Link-Master.",yes:"DOR2",no:"KA1",noAgain:"DOR4",obsNo:"IO-Link-Kabel nicht gesteckt"},
  KA1:{imgs:[{f: "io-link-master-strom", c: "So sollen die Kabel stecken"}],s:3,type:"a",text:"Kabel einstecken. Wenn die Position unklar ist, mit einer anderen Station vergleichen.",to:"R1"},
 
